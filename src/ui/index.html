@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bifacewiki Knowledge Platform - Standalone Web GUI</title>
+  <title>Bifacewiki Knowledge Platform - 대시보드</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-dark: #0f172a;
-      --card-bg: rgba(30, 41, 59, 0.8);
-      --border-color: rgba(255, 255, 255, 0.1);
+      --bg-dark: #090d16;
+      --card-bg: #131b2e;
+      --border-color: #23314d;
       --primary: #38bdf8;
       --primary-hover: #0284c7;
       --accent-green: #4ade80;
@@ -22,15 +22,15 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
       background: var(--bg-dark);
       color: var(--text-main);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
     }
     header {
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-color);
       padding: 16px 32px;
@@ -41,17 +41,17 @@
       top: 0;
       z-index: 100;
     }
-    .logo-box h1 { font-size: 20px; font-weight: 700; color: var(--primary); }
-    .logo-box p { font-size: 12px; color: var(--text-muted); }
+    .logo-box h1 { font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+    .logo-box p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
     .nav-tabs { display: flex; gap: 8px; }
     .nav-btn {
       background: transparent;
       border: 1px solid transparent;
       color: var(--text-muted);
-      padding: 8px 16px;
-      border-radius: 6px;
+      padding: 10px 18px;
+      border-radius: 8px;
       cursor: pointer;
-      font-weight: 500;
+      font-weight: 600;
       font-size: 14px;
       transition: all 0.2s ease;
     }
@@ -60,22 +60,36 @@
       border-color: var(--primary);
       color: var(--primary);
     }
+
+    /* Workflow Banner Guide */
+    .guide-banner {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(74, 222, 128, 0.1));
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .guide-banner h2 { font-size: 16px; color: var(--primary); margin-bottom: 12px; }
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .step-item { background: rgba(0,0,0,0.3); padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--primary); }
+    .step-item h4 { font-size: 13px; color: var(--accent-green); margin-bottom: 4px; }
+    .step-item p { font-size: 12px; color: var(--text-muted); }
+
     main { flex: 1; padding: 32px; max-width: 1400px; margin: 0 auto; width: 100%; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    
-    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
     .card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 24px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
-    .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
-    .card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
-    
+    .card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+    .card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
+
     .badge {
       display: inline-block;
       padding: 4px 10px;
@@ -92,28 +106,43 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 8px 16px;
-      border-radius: 6px;
+      padding: 10px 18px;
+      border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       border: none;
-      transition: background 0.2s ease;
+      transition: all 0.2s ease;
+      gap: 6px;
     }
-    .btn-primary { background: var(--primary); color: #000; }
+    .btn-primary { background: var(--primary); color: #090d16; }
     .btn-primary:hover { background: var(--primary-hover); color: #fff; }
-    .btn-success { background: var(--accent-green); color: #000; }
+    .btn-success { background: var(--accent-green); color: #090d16; }
     .btn-danger { background: var(--accent-red); color: #fff; }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--primary); }
 
     pre {
       font-family: 'Fira Code', monospace;
-      background: #020617;
+      background: #050811;
       padding: 16px;
       border-radius: 8px;
       font-size: 12px;
       overflow-x: auto;
       border: 1px solid var(--border-color);
       color: var(--accent-green);
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -121,94 +150,115 @@
 
   <header>
     <div class="logo-box">
-      <h1>Bifacewiki Knowledge Platform</h1>
-      <p>Dual-Layer Human & AI Knowledge Governance Standalone GUI</p>
+      <h1>🧠 Knowledge Platform 대시보드</h1>
+      <p>Human Knowledge & AI Knowledge 이중화 통합 관리 및 승인 관문 UI</p>
     </div>
     <div class="nav-tabs">
-      <button class="nav-btn active" onclick="switchTab('dashboard')">Git Dashboard</button>
-      <button class="nav-btn" onclick="switchTab('approval')">Approval Queue (NFR-SEC-01)</button>
-      <button class="nav-btn" onclick="switchTab('agent')">Agent Skill & Prompt Binder</button>
-      <button class="nav-btn" onclick="switchTab('graph')">Graph Explorer & Obsidian</button>
+      <button class="nav-btn active" onclick="switchTab('ingest')">1. Q&A 지식 추출</button>
+      <button class="nav-btn" onclick="switchTab('approval')">2. 인간 검증 승인 큐</button>
+      <button class="nav-btn" onclick="switchTab('agent')">3. Agent 스킬 바인딩</button>
+      <button class="nav-btn" onclick="switchTab('audit')">4. 정적 린팅 스캔</button>
+      <button class="nav-btn" onclick="switchTab('graph')">5. Ref-DAG 그래프 탐색</button>
     </div>
   </header>
 
   <main>
-    <!-- TAB 1: GIT DASHBOARD -->
-    <div id="tab-dashboard" class="tab-content active">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">Git Management & Status Dashboard (DSGN-UI-DASHBOARD)</h2>
-      <div class="card-grid">
-        <div class="card">
-          <h3>Repository Status</h3>
-          <p>Branch: <strong style="color: var(--accent-green);">main</strong> | Unstaged Changes: <strong>0 files</strong></p>
-          <button class="btn btn-primary" onclick="alert('Git Sync Remote Triggered (NFR-SEC-02 Keychain TLS 1.3)')">Sync Remote (Push/Pull)</button>
+    <!-- WORKFLOW GUIDE BANNER -->
+    <div class="guide-banner">
+      <h2>💡 Knowledge Platform 지식 관리 3단계 핵심 흐름 가이드</h2>
+      <div class="steps-grid">
+        <div class="step-item">
+          <h4>1단계: Q&A 대화 추출 (Draft)</h4>
+          <p>대화 로그에서 지식을 추출하여 AI 오염을 방지하기 위해 <code>.drafts/</code> 임시 폴더에 격리 저장합니다.</p>
         </div>
-        <div class="card">
-          <h3>Visual Line-by-Line Diff Viewer</h3>
-          <p>Compare working draft changes against HEAD commit.</p>
-          <button class="btn btn-primary" onclick="toggleDiffModal()">View Diff Modal</button>
+        <div class="step-item">
+          <h4>2단계: 인간 검증 및 승인 (Production)</h4>
+          <p>인간 중개자(Human Broker)가 Draft 지식을 검토하고 승인하면 단일 진실 원천(<code>knowledge/</code>)으로 승격 커밋됩니다.</p>
+        </div>
+        <div class="step-item">
+          <h4>3단계: LLM 에이전트 지식 주입 (Retrieval)</h4>
+          <p>승인 완료된 검증 지식만을 LLM 에이전트 세션에 정밀 주입하여 환각(Hallucination) 없는 답변을 생성합니다.</p>
         </div>
       </div>
-      <div id="diff-modal" style="margin-top: 24px; display: none;">
-        <div class="card">
-          <h3>Line-by-Line Diff Comparison</h3>
-          <pre>+ ---
-+ id: node-3d3b9bd8
-+ title: "How to resolve memory leak in connection pool"
-+ status: production
-+ approved_by: "broker_alex"
-+ ---
-+ # Memory Leak Resolution Guide</pre>
-        </div>
+    </div>
+
+    <!-- TAB 1: Q&A INGESTION -->
+    <div id="tab-ingest" class="tab-content active">
+      <h2 style="font-size: 20px; margin-bottom: 16px;">1. Q&A 대화 지식 추출 및 Draft 생성 (`DSGN-CORE-INGEST`)</h2>
+      <div class="card">
+        <h3>Q&A 대화 입력</h3>
+        <p>Q&A 대화 내용 또는 기술 답변을 입력하면 AI가 1개 주제만 포함하는 원자적(Atomic) 마크다운으로 추출하여 <code>.drafts/</code>에 저장합니다.</p>
+        <textarea id="ingest-log-input" rows="6" placeholder="예시: Q: DB Connection Leak 문제가 발생하는데 어떻게 해결하나요? A: try-with-resources 구문이나 finally 블록에서 connection.close()를 명시적으로 호출해야 합니다."></textarea>
+        <button class="btn btn-primary" onclick="executeIngestion()">⚡ 지식 추출 및 Draft 생성 실행</button>
+        <div id="ingest-result" style="margin-top: 16px; display: none;"></div>
       </div>
     </div>
 
     <!-- TAB 2: APPROVAL QUEUE -->
     <div id="tab-approval" class="tab-content">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">Human Broker Review Queue (NFR-SEC-01 Model Collapse Prevention)</h2>
+      <h2 style="font-size: 20px; margin-bottom: 16px;">2. 인간 중개자 검증 및 승인 관문 (`DSGN-APPROVAL-GATE`)</h2>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        <strong>NFR-SEC-01 보안 통제</strong>: AI가 자동 생성한 지식(<code>author_type: ai_generated</code>)은 인간의 승인 없이 프로덕션 LLM에 주입될 수 없습니다. 인간 중개자가 검토 후 승인하여 <code>main</code> 브랜치로 병합합니다.
+      </p>
       <div id="approval-queue-list" class="card-grid">
         <!-- Rendered dynamically -->
       </div>
     </div>
 
-    <!-- TAB 3: AGENT SKILL & PROMPT BINDER -->
+    <!-- TAB 3: AGENT SKILL BINDER -->
     <div id="tab-agent" class="tab-content">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">Agent Skill & Prompt Presets Binder (DSGN-AGENT-BINDER)</h2>
+      <h2 style="font-size: 20px; margin-bottom: 16px;">3. Agent 스킬 및 프롬프트 바인딩 (`DSGN-AGENT-BINDER`)</h2>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">
+        대화 맥락에 따라 필요한 스킬 프롬프트 프리셋 및 Tool Call 스키마를 LLM 대화 세션에 원클릭으로 바인딩합니다.
+      </p>
       <div class="card-grid">
         <div class="card">
           <span class="badge badge-draft">ingestion</span>
-          <h3>Q&A Ingestion & Atomic Markdown Extractor</h3>
-          <p>Parses raw multi-turn conversation logs into single-topic Atomic Markdown with minimal schema.</p>
-          <button class="btn btn-primary" onclick="bindPreset('qa_ingestion_preset')">One-Click Bind to Session</button>
+          <h3>Q&A 추출 & Atomic 작성 프리셋</h3>
+          <p>대화 로그에서 지식을 원자적 마크다운으로 자동 요약 정제하는 스킬 프리셋.</p>
+          <button class="btn btn-primary" onclick="bindPreset('qa_ingestion_preset')">원클릭 스킬 바인딩</button>
         </div>
         <div class="card">
           <span class="badge badge-prod">indexer_dag</span>
-          <h3>Ref-DAG Knowledge Search & Context Injector</h3>
-          <p>Queries production Ref-DAG nodes and injects verified markdown context into LLM sessions.</p>
-          <button class="btn btn-primary" onclick="bindPreset('knowledge_retrieval_preset')">One-Click Bind to Session</button>
+          <h3>Ref-DAG 지식 탐색 & Context 주입 프리셋</h3>
+          <p>승인된 지식 그래프를 탐색하여 LLM 세션에 verified 마크다운을 주입하는 스킬 프리셋.</p>
+          <button class="btn btn-primary" onclick="bindPreset('knowledge_retrieval_preset')">원클릭 스킬 바인딩</button>
         </div>
         <div class="card">
           <span class="badge badge-draft">linter_engine</span>
-          <h3>24/7 Knowledge Static Auditor</h3>
-          <p>Scans for broken links, orphan nodes, YAML schema errors, and 180-day stale nodes.</p>
-          <button class="btn btn-primary" onclick="bindPreset('linter_audit_preset')">One-Click Bind to Session</button>
+          <h3>24/7 지식 정적 린팅 감사 프리셋</h3>
+          <p>깨진 링크, Orphan Node, YAML 스키마 오차, Stale 노드를 자동 감지하는 스킬 프리셋.</p>
+          <button class="btn btn-primary" onclick="bindPreset('linter_audit_preset')">원클릭 스킬 바인딩</button>
         </div>
         <div class="card">
           <span class="badge badge-prod">refactor_engine</span>
-          <h3>Graph Refactoring & Node Merge Specialist</h3>
-          <p>Formulates duplicate node merge proposals (&ge; 0.90 similarity) with Wikilink auto-redirection.</p>
-          <button class="btn btn-primary" onclick="bindPreset('refactor_merge_preset')">One-Click Bind to Session</button>
+          <h3>그래프 중복 통합 리팩토링 프리셋</h3>
+          <p>유사도 0.90 이상의 파편화 노드를 원자적 1개 노드로 병합 제안하는 스킬 프리셋.</p>
+          <button class="btn btn-primary" onclick="bindPreset('refactor_merge_preset')">원클릭 스킬 바인딩</button>
         </div>
       </div>
     </div>
 
-    <!-- TAB 4: GRAPH EXPLORER & OBSIDIAN -->
-    <div id="tab-graph" class="tab-content">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">Ref-DAG Graph Explorer & OS Launcher (DSGN-LAUNCHER-PROTOCOL)</h2>
+    <!-- TAB 4: AUDIT SCAN -->
+    <div id="tab-audit" class="tab-content">
+      <h2 style="font-size: 20px; margin-bottom: 16px;">4. 24/7 지식 정적 린팅 & 정합성 검사 (`DSGN-LINTER-ENGINE`)</h2>
       <div class="card">
-        <h3>Active Graph Nodes Summary</h3>
-        <ul id="node-list" style="list-style: none; margin-top: 16px;">
+        <h3>지식 저장소 정적 린팅 감사 스캔</h3>
+        <p>전체 마크다운 지식 노드와 Ref-DAG 인덱스를 정적 스캔하여 깨진 참조, 고립 노드, 메타 오차를 탐지합니다.</p>
+        <button class="btn btn-primary" onclick="runAuditScan()">🔍 24/7 정적 린팅 스캔 실행</button>
+        <div id="audit-result" style="margin-top: 16px; display: none;"></div>
+      </div>
+    </div>
+
+    <!-- TAB 5: GRAPH EXPLORER -->
+    <div id="tab-graph" class="tab-content">
+      <h2 style="font-size: 20px; margin-bottom: 16px;">5. Ref-DAG 그래프 탐색기 & Obsidian 연동 (`DSGN-LAUNCHER-PROTOCOL`)</h2>
+      <div class="card">
+        <h3>활성 지식 그래프 노드 목록</h3>
+        <p>클릭 시 OS URI Scheme (<code>obsidian://open</code>)을 호출하여 Obsidian 데스크톱 앱에서 해당 지식 파일을 바로 시각화 오픈합니다.</p>
+        <div id="node-list-container" style="margin-top: 16px;">
           <!-- Rendered dynamically -->
-        </ul>
+        </div>
       </div>
     </div>
   </main>
@@ -219,13 +269,31 @@
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       event.target.classList.add('active');
       document.getElementById('tab-' + tabId).classList.add('active');
+
       if (tabId === 'approval') fetchPendingApprovals();
       if (tabId === 'graph') fetchGraphNodes();
     }
 
-    function toggleDiffModal() {
-      const el = document.getElementById('diff-modal');
-      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    async function executeIngestion() {
+      const text = document.getElementById('ingest-log-input').value.trim();
+      if (!text) { alert('Q&A 대화 내용을 입력해주세요.'); return; }
+
+      const res = await fetch('/api/v1/knowledge/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversation_session_id: 'web-ui-sess', raw_conversation_log: text })
+      });
+      const data = await res.json();
+      const container = document.getElementById('ingest-result');
+      container.style.display = 'block';
+      container.innerHTML = `
+        <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid var(--accent-green); padding: 16px; border-radius: 8px;">
+          <h4 style="color: var(--accent-green); font-size: 14px; margin-bottom: 8px;">✅ Draft 지식 추출 완료! (.drafts/에 격리 저장됨)</h4>
+          <p style="font-size: 13px; color: var(--text-main);"><strong>노드 ID:</strong> ${data.node_id}</p>
+          <p style="font-size: 13px; color: var(--text-main);"><strong>저장 위치:</strong> ${data.file_path}</p>
+          <pre style="margin-top: 10px;">${data.extracted_markdown}</pre>
+        </div>
+      `;
     }
 
     async function fetchPendingApprovals() {
@@ -235,7 +303,7 @@
         const container = document.getElementById('approval-queue-list');
         container.innerHTML = '';
         if (!data.pending_approvals || data.pending_approvals.length === 0) {
-          container.innerHTML = '<div class="card"><p>No pending draft nodes awaiting human review.</p></div>';
+          container.innerHTML = '<div class="card"><p style="color: var(--text-muted);">현재 승인 대기 중인 Draft 지식 노드가 없습니다. (1단계에서 Q&A 지식을 먼저 추출해보세요!)</p></div>';
           return;
         }
         data.pending_approvals.forEach(item => {
@@ -245,26 +313,24 @@
                 <span class="badge badge-draft">${item.type}</span>
                 <span class="badge badge-ai">${item.author_type}</span>
               </div>
-              <h3 style="margin-top: 8px;">${item.title} (${item.node_id})</h3>
-              <p>Extracted File: ${item.file_path}</p>
-              <pre>${item.extracted_markdown}</pre>
-              <div style="margin-top: 16px;">
-                <button class="btn btn-success" onclick="decideApproval('${item.node_id}', 'approve')">Approve & Merge</button>
-                <button class="btn btn-danger" onclick="decideApproval('${item.node_id}', 'reject')">Reject</button>
+              <h3 style="margin-top: 10px;">${item.title}</h3>
+              <p style="font-size: 12px; color: var(--text-muted);">노드 ID: ${item.node_id} | 임시 위치: ${item.file_path}</p>
+              <pre style="margin-top: 10px;">${item.extracted_markdown}</pre>
+              <div style="margin-top: 16px; display: flex; gap: 8px;">
+                <button class="btn btn-success" onclick="decideApproval('${item.node_id}', 'approve')">✅ 승인 및 프로덕션 병합 (Approve & Merge)</button>
+                <button class="btn btn-danger" onclick="decideApproval('${item.node_id}', 'reject')">❌ 반려 및 삭제 (Reject)</button>
               </div>
             </div>
           `;
         });
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     }
 
     async function decideApproval(nodeId, decision) {
       const res = await fetch('/api/v1/approval/decide', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ node_id: nodeId, decision: decision, broker_id: 'broker_web_ui' })
+        body: JSON.stringify({ node_id: nodeId, decision: decision, broker_id: 'human_broker_admin' })
       });
       const data = await res.json();
       alert(data.message);
@@ -275,26 +341,46 @@
       const res = await fetch('/api/v1/agent/bind-skill', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: 'web-session', preset_id: presetId })
+        body: JSON.stringify({ session_id: 'web-ui-session', preset_id: presetId })
       });
       const data = await res.json();
-      alert(`[One-Click Binding Success NFR-PERF-04] Skill '${data.preset_id}' bound to LLM session '${data.session_id}'`);
+      alert(`[원클릭 스킬 바인딩 완료] 스킬 '${data.preset_id}'가 LLM 세션 '${data.session_id}'에 주입되었습니다.`);
+    }
+
+    async function runAuditScan() {
+      const res = await fetch('/api/v1/audit/lint', { method: 'POST' });
+      const data = await res.json();
+      const container = document.getElementById('audit-result');
+      container.style.display = 'block';
+      container.innerHTML = `
+        <div style="background: #050811; border: 1px solid var(--border-color); padding: 16px; border-radius: 8px;">
+          <h4 style="color: var(--primary); font-size: 14px; margin-bottom: 8px;">📊 24/7 정적 린팅 감사 스캔 리포트 (${data.scan_timestamp})</h4>
+          <p style="font-size: 13px;">총 검사 노드 수: <strong>${data.total_nodes_scanned}개</strong></p>
+          <p style="font-size: 13px; color: var(--accent-yellow);">깨진 참조 링크: <strong>${data.broken_links.length}개</strong></p>
+          <p style="font-size: 13px; color: var(--text-muted);">고립 노드: <strong>${data.orphan_nodes.length}개</strong></p>
+          <p style="font-size: 13px; color: var(--text-muted);">180일 이상 낡은 노드: <strong>${data.stale_nodes.length}개</strong></p>
+        </div>
+      `;
     }
 
     async function fetchGraphNodes() {
       const res = await fetch('/api/v1/graph/nodes');
       const data = await res.json();
-      const container = document.getElementById('node-list');
+      const container = document.getElementById('node-list-container');
       container.innerHTML = '';
+      if (!data.nodes || data.nodes.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted);">현재 그래프에 등록된 노드가 없습니다.</p>';
+        return;
+      }
       data.nodes.forEach(node => {
         container.innerHTML += `
-          <li style="padding: 12px 0; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+          <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 8px;">
             <div>
               <strong>[${node.id}]</strong> ${node.title} 
               <span class="badge ${node.status === 'production' ? 'badge-prod' : 'badge-draft'}">${node.status}</span>
             </div>
-            <button class="btn btn-primary" onclick="launchObsidian('${node.file_path}')">Launch in Obsidian</button>
-          </li>
+            <button class="btn btn-primary" onclick="launchObsidian('${node.file_path}')">Obsidian으로 직접 열기</button>
+          </div>
         `;
       });
     }
@@ -302,7 +388,7 @@
     async function launchObsidian(filePath) {
       const res = await fetch(`/api/v1/external/launch?tool_type=obsidian&target_file=${encodeURIComponent(filePath)}`);
       const data = await res.json();
-      alert(`Launched OS URI Scheme (UC-011 NFR-COMP-01): ${data.uri_scheme}`);
+      alert(`[OS URI Scheme 실행 - UC-011] Obsidian 구동: ${data.uri_scheme}`);
     }
   </script>
 </body>
