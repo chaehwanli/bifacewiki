@@ -17,6 +17,7 @@
       --accent-green: #4ade80;
       --accent-yellow: #facc15;
       --accent-red: #f43f5e;
+      --accent-purple: #c084fc;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -43,17 +44,22 @@
     }
     .logo-box h1 { font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
     .logo-box p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-    .nav-tabs { display: flex; gap: 8px; }
+
+    /* Category Grouped Nav Tabs */
+    .nav-tabs { display: flex; gap: 6px; }
     .nav-btn {
       background: transparent;
       border: 1px solid transparent;
       color: var(--text-muted);
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13px;
       transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .nav-btn.active, .nav-btn:hover {
       background: rgba(56, 189, 248, 0.15);
@@ -63,13 +69,13 @@
 
     /* Workflow Banner Guide */
     .guide-banner {
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(74, 222, 128, 0.1));
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(192, 132, 252, 0.1));
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 20px 24px;
       margin-bottom: 28px;
     }
-    .guide-banner h2 { font-size: 16px; color: var(--primary); margin-bottom: 12px; }
+    .guide-banner h2 { font-size: 15px; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
     .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .step-item { background: rgba(0,0,0,0.3); padding: 12px 16px; border-radius: 8px; border-left: 3px solid var(--primary); }
     .step-item h4 { font-size: 13px; color: var(--accent-green); margin-bottom: 4px; }
@@ -78,6 +84,25 @@
     main { flex: 1; padding: 32px; max-width: 1400px; margin: 0 auto; width: 100%; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+
+    .domain-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .domain-header h2 { font-size: 20px; font-weight: 700; color: var(--text-main); }
+    .domain-tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      font-weight: 600;
+    }
 
     .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
     .card {
@@ -151,40 +176,44 @@
   <header>
     <div class="logo-box">
       <h1>🧠 Knowledge Platform 대시보드</h1>
-      <p>Human Knowledge & AI Knowledge 이중화 통합 관리 및 승인 관문 UI</p>
+      <p>Human Knowledge & AI Knowledge 이중화 통합 관리 및 모듈별 제어 UI</p>
     </div>
+    <!-- Functional Categories (No confusing step numbers!) -->
     <div class="nav-tabs">
-      <button class="nav-btn active" onclick="switchTab('ingest')">1. Q&A 지식 추출</button>
-      <button class="nav-btn" onclick="switchTab('approval')">2. 인간 검증 승인 큐</button>
-      <button class="nav-btn" onclick="switchTab('agent')">3. Agent 스킬 바인딩</button>
-      <button class="nav-btn" onclick="switchTab('audit')">4. 정적 린팅 스캔</button>
-      <button class="nav-btn" onclick="switchTab('graph')">5. Ref-DAG 그래프 탐색</button>
+      <button class="nav-btn active" onclick="switchTab('ingest')">📥 Q&A 지식 추출</button>
+      <button class="nav-btn" onclick="switchTab('approval')">🛡️ 인간 승인 관문</button>
+      <button class="nav-btn" onclick="switchTab('agent')">🤖 Agent 스킬 바인딩</button>
+      <button class="nav-btn" onclick="switchTab('audit')">🔍 정적 린팅 스캔</button>
+      <button class="nav-btn" onclick="switchTab('graph')">🕸️ Ref-DAG 그래프 탐색</button>
     </div>
   </header>
 
   <main>
     <!-- WORKFLOW GUIDE BANNER -->
     <div class="guide-banner">
-      <h2>💡 Knowledge Platform 지식 관리 3단계 핵심 흐름 가이드</h2>
+      <h2>💡 지식 수명주기(Lifecycle) 및 플랫폼 모듈 안내</h2>
       <div class="steps-grid">
         <div class="step-item">
-          <h4>1단계: Q&A 대화 추출 (Draft)</h4>
-          <p>대화 로그에서 지식을 추출하여 AI 오염을 방지하기 위해 <code>.drafts/</code> 임시 폴더에 격리 저장합니다.</p>
+          <h4>지식 수집 & Draft 격리 (`.drafts/`)</h4>
+          <p>Q&A 대화에서 추출된 지식을 AI 모델 오염 방지(`NFR-SEC-01`)를 위해 임시 폴더에 격리 저장합니다.</p>
         </div>
         <div class="step-item">
-          <h4>2단계: 인간 검증 및 승인 (Production)</h4>
-          <p>인간 중개자(Human Broker)가 Draft 지식을 검토하고 승인하면 단일 진실 원천(<code>knowledge/</code>)으로 승격 커밋됩니다.</p>
+          <h4>인간 검증 & main 병합 (`knowledge/`)</h4>
+          <p>인간 중개자가 검토 후 승인하면 단일 진실 원천(Source of Truth)으로 승격되어 main 브랜치에 커밋됩니다.</p>
         </div>
         <div class="step-item">
-          <h4>3단계: LLM 에이전트 지식 주입 (Retrieval)</h4>
-          <p>승인 완료된 검증 지식만을 LLM 에이전트 세션에 정밀 주입하여 환각(Hallucination) 없는 답변을 생성합니다.</p>
+          <h4>독립 기능 모듈 (스킬/린팅/그래프)</h4>
+          <p>에이전트 스킬 바인딩, 24/7 정적 린팅 감사, Obsidian OS URI 그래프 구동은 독립적으로 상시 실행되는 모듈입니다.</p>
         </div>
       </div>
     </div>
 
     <!-- TAB 1: Q&A INGESTION -->
     <div id="tab-ingest" class="tab-content active">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">1. Q&A 대화 지식 추출 및 Draft 생성 (`DSGN-CORE-INGEST`)</h2>
+      <div class="domain-header">
+        <h2>Q&A 지식 추출 및 Draft 생성</h2>
+        <span class="domain-tag">영역: 지식 수집 엔진 (DSGN-CORE-INGEST)</span>
+      </div>
       <div class="card">
         <h3>Q&A 대화 입력</h3>
         <p>Q&A 대화 내용 또는 기술 답변을 입력하면 AI가 1개 주제만 포함하는 원자적(Atomic) 마크다운으로 추출하여 <code>.drafts/</code>에 저장합니다.</p>
@@ -196,7 +225,10 @@
 
     <!-- TAB 2: APPROVAL QUEUE -->
     <div id="tab-approval" class="tab-content">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">2. 인간 중개자 검증 및 승인 관문 (`DSGN-APPROVAL-GATE`)</h2>
+      <div class="domain-header">
+        <h2>인간 중개자 검증 및 승인 관문</h2>
+        <span class="domain-tag">영역: 지식 거버넌스 (DSGN-APPROVAL-GATE)</span>
+      </div>
       <p style="color: var(--text-muted); margin-bottom: 20px;">
         <strong>NFR-SEC-01 보안 통제</strong>: AI가 자동 생성한 지식(<code>author_type: ai_generated</code>)은 인간의 승인 없이 프로덕션 LLM에 주입될 수 없습니다. 인간 중개자가 검토 후 승인하여 <code>main</code> 브랜치로 병합합니다.
       </p>
@@ -207,9 +239,12 @@
 
     <!-- TAB 3: AGENT SKILL BINDER -->
     <div id="tab-agent" class="tab-content">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">3. Agent 스킬 및 프롬프트 바인딩 (`DSGN-AGENT-BINDER`)</h2>
+      <div class="domain-header">
+        <h2>Agent 스킬 및 프롬프트 바인딩</h2>
+        <span class="domain-tag">영역: 에이전트 연동 (DSGN-AGENT-BINDER)</span>
+      </div>
       <p style="color: var(--text-muted); margin-bottom: 20px;">
-        대화 맥락에 따라 필요한 스킬 프롬프트 프리셋 및 Tool Call 스키마를 LLM 대화 세션에 원클릭으로 바인딩합니다.
+        독립 기능 모듈: 대화 맥락에 따라 필요한 스킬 프롬프트 프리셋 및 Tool Call 스키마를 LLM 대화 세션에 원클릭으로 바인딩합니다.
       </p>
       <div class="card-grid">
         <div class="card">
@@ -241,10 +276,13 @@
 
     <!-- TAB 4: AUDIT SCAN -->
     <div id="tab-audit" class="tab-content">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">4. 24/7 지식 정적 린팅 & 정합성 검사 (`DSGN-LINTER-ENGINE`)</h2>
+      <div class="domain-header">
+        <h2>24/7 지식 정적 린팅 & 정합성 검사</h2>
+        <span class="domain-tag">영역: 지식 품질 관리 (DSGN-LINTER-ENGINE)</span>
+      </div>
       <div class="card">
         <h3>지식 저장소 정적 린팅 감사 스캔</h3>
-        <p>전체 마크다운 지식 노드와 Ref-DAG 인덱스를 정적 스캔하여 깨진 참조, 고립 노드, 메타 오차를 탐지합니다.</p>
+        <p>독립 기능 모듈: 전체 마크다운 지식 노드와 Ref-DAG 인덱스를 정적 스캔하여 깨진 참조, 고립 노드, 메타 오차를 탐지합니다.</p>
         <button class="btn btn-primary" onclick="runAuditScan()">🔍 24/7 정적 린팅 스캔 실행</button>
         <div id="audit-result" style="margin-top: 16px; display: none;"></div>
       </div>
@@ -252,10 +290,13 @@
 
     <!-- TAB 5: GRAPH EXPLORER -->
     <div id="tab-graph" class="tab-content">
-      <h2 style="font-size: 20px; margin-bottom: 16px;">5. Ref-DAG 그래프 탐색기 & Obsidian 연동 (`DSGN-LAUNCHER-PROTOCOL`)</h2>
+      <div class="domain-header">
+        <h2>Ref-DAG 그래프 탐색기 & Obsidian 연동</h2>
+        <span class="domain-tag">영역: 그래프 인덱싱 및 시각화 (DSGN-LAUNCHER-PROTOCOL)</span>
+      </div>
       <div class="card">
         <h3>활성 지식 그래프 노드 목록</h3>
-        <p>클릭 시 OS URI Scheme (<code>obsidian://open</code>)을 호출하여 Obsidian 데스크톱 앱에서 해당 지식 파일을 바로 시각화 오픈합니다.</p>
+        <p>독립 기능 모듈: 클릭 시 OS URI Scheme (<code>obsidian://open</code>)을 호출하여 Obsidian 데스크톱 앱에서 해당 지식 파일을 바로 시각화 오픈합니다.</p>
         <div id="node-list-container" style="margin-top: 16px;">
           <!-- Rendered dynamically -->
         </div>
@@ -303,7 +344,7 @@
         const container = document.getElementById('approval-queue-list');
         container.innerHTML = '';
         if (!data.pending_approvals || data.pending_approvals.length === 0) {
-          container.innerHTML = '<div class="card"><p style="color: var(--text-muted);">현재 승인 대기 중인 Draft 지식 노드가 없습니다. (1단계에서 Q&A 지식을 먼저 추출해보세요!)</p></div>';
+          container.innerHTML = '<div class="card"><p style="color: var(--text-muted);">현재 승인 대기 중인 Draft 지식 노드가 없습니다. ("Q&A 지식 추출" 탭에서 지식을 먼저 추출해보세요!)</p></div>';
           return;
         }
         data.pending_approvals.forEach(item => {
