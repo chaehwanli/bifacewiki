@@ -7,19 +7,58 @@ Dual-Layer Human Knowledge & AI Knowledge Management Ecosystem.
 
 ---
 
-## Quick Start (실행 방법)
+## Quick Start & Execution Guide (실행 방법)
 
-### Automated Test Suite Execution
-Run the full unit test suite, NFR benchmark latency test suite, and DAG cycle prevention tests:
+Knowledge Platform은 CLI 진입점(`src/cli.py`), HTTP REST API 웹 서버(`src/main.py`), 그리고 자동화 테스트 Suite (`tests/`)의 3가지 방식으로 즉시 실행 가능합니다.
+
+### 1. CLI 터미널 실행 방법 (`src/cli.py`)
 
 ```bash
-# Run all unit and integration tests (10 test cases)
+# 1-1. REST API 웹 서버 구동 (기본 포트: 8000)
+python -m src.cli serve --port 8000
+
+# 1-2. Q&A 대화 지식 추출 및 Draft 생성
+python -m src.cli ingest --log "How to resolve memory leak in database connection pool?"
+
+# 1-3. 인간 승인 대기 큐 목록 조회
+python -m src.cli pending
+
+# 1-4. 인간 중개자(Human Broker) 지식 승인 및 프로덕션 승격
+python -m src.cli approve --node node-3d3b9bd8 --broker broker_alex
+
+# 1-5. 프로덕션 지식 노드 검색
+python -m src.cli search --query "memory leak"
+
+# 1-6. 24/7 지식 자동 정적 린팅 (Broken link, Orphan node 등)
+python -m src.cli audit
+
+# 1-7. Ref-DAG 그래프 요약 조회
+python -m src.cli graph
+```
+
+### 2. HTTP REST API 웹 서버 구동 (`src/main.py`)
+
+```bash
+# HTTP REST API 백엔드 서버 구동
+python -m src.main 8000
+```
+- `POST /api/v1/knowledge/extract`: Q&A 추출 및 Draft 저장
+- `GET /api/v1/approval/pending`: 승인 대기 목록 조회
+- `POST /api/v1/approval/decide`: 인간 승인 결정 (`NFR-SEC-01` 통제)
+- `POST /api/v1/audit/lint`: 24/7 정적 린팅 검사
+- `GET /api/v1/graph/nodes` / `GET /api/v1/graph/edges`: 그래프 인덱스 조회
+- `GET /api/v1/external/launch`: Obsidian/Logseq OS URI Scheme 연동
+
+### 3. 자동화 테스트 Suite 실행 (`tests/`)
+
+```bash
+# 전체 단위/통합 테스트 (10개 Test Cases)
 python -m pytest tests/ -v
 
-# Run performance NFR benchmark latency tests
+# NFR 성능 벤치마크 지표 검증
 python -m pytest tests/test_performance_benchmarks.py -v
 
-# Run Kahn's algorithm DAG cycle prevention tests
+# Kahn's Algorithm 기반 DAG 순환 방지 검증
 python -m pytest tests/test_dag_cycle_prevention.py -v
 ```
 
