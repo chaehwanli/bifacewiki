@@ -14,9 +14,14 @@ The purpose of this project is to categorize Knowledge into Human Knowledge and 
 
 
 ## skill
-.skill폴더에 정리해 놓은 스킬을 참고해주세요.
-Please refer to the skills compiled in the `.skill` folder.
+.skill폴더에 정리해 놓은 주체별 스킬을 참고하여 작업을 수행해주세요. (Please refer to the role-based skills compiled in the `.skill` folder.)
+
+- **[architect](file:///home/chaehwan/bifacewiki/bifacewiki/.skill/architect/SKILL.md)**: System Architect 주체용 (전체 아키텍처 사양서, Ref-DAG 모델링, 모듈 인터페이스 및 NFR 제약조건 정의 스킬)
+- **[po](file:///home/chaehwan/bifacewiki/bifacewiki/.skill/po/SKILL.md)**: Project Owner 주체용 (요구사항 수용조건 검증, 지식 거버넌스 및 승인 관문 정책 정의 스킬)
+- **[developer](file:///home/chaehwan/bifacewiki/bifacewiki/.skill/developer/SKILL.md)**: Tech Lead & Core Developer 주체용 (Core 모듈 구현, AST 파서, Git 및 LLM 어댑터 개발 스킬)
+- **[qa](file:///home/chaehwan/bifacewiki/bifacewiki/.skill/qa/SKILL.md)**: QA Lead & Functional Test팀 주체용 (REQ-DSGN-TEST 추적성 검증, 통합/계약 테스트 시나리오 및 NFR 검증 스킬)
 
 ## agent
 .agent폴더에 정리해 놓은 에이전트를 참고해주세요.
 Please refer to the agents compiled in the `.agent` folder.
+
