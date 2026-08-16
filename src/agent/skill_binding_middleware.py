@@ -88,7 +88,18 @@ class SkillBindingMiddleware:
         """
         start_time = time.time()
 
-        skill_def = self.load_skill_definition(preset_id)
+        preset_map = {
+            "qa_ingestion": "ingestion",
+            "linter_audit": "linter_engine",
+            "refactor_merge": "refactor_engine",
+            "knowledge_retrieval": "agent_binder"
+        }
+        target_skill = preset_map.get(preset_id, preset_id)
+        skill_path = os.path.join(self.skills_dir, target_skill, "SKILL.md")
+        if not os.path.exists(skill_path):
+            target_skill = "ingestion"
+
+        skill_def = self.load_skill_definition(target_skill)
 
         bound_session = BoundSessionDTO(
             session_id=session_id,

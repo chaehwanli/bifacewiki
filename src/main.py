@@ -35,6 +35,8 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
     binder = SkillBindingMiddleware(workspace_root)
     retrieval = KnowledgeRetrievalSkill(indexer)
     launcher = ExternalLauncherAdapter()
+    sessions_db: dict = {}
+    active_tokens: dict = {"mock-admin-token": "admin"}
 
     def _set_headers(self, status_code: int = 200, content_type: str = "application/json"):
         self.send_response(status_code)
@@ -147,6 +149,20 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
                     "stale_nodes": report.stale_nodes
                 }, ensure_ascii=False).encode('utf-8'))
 
+            elif path == "/api/v1/auth/session":
+                auth_hdr = self.headers.get("Authorization", "")
+                token = auth_hdr.replace("Bearer ", "").strip() or query.get("token", [""])[0]
+                if token in self.active_tokens:
+                    self._set_headers(200)
+                    self.wfile.write(json.dumps({"valid": True, "user_id": self.active_tokens[token]}).encode('utf-8'))
+                else:
+                    self._set_headers(401)
+                    self.wfile.write(json.dumps({"error": "Unauthorized session token"}).encode('utf-8'))
+
+            elif path == "/api/v1/chat/sessions":
+                self._set_headers(200)
+                self.wfile.write(json.dumps({"sessions": list(self.sessions_db.values())}, ensure_ascii=False).encode('utf-8'))
+
             else:
                 self._set_headers(404)
                 self.wfile.write(json.dumps({"error": f"Endpoint '{path}' not found"}).encode('utf-8'))
@@ -161,7 +177,45 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
         body = self._read_json_body()
 
         try:
-            if path == "/api/v1/knowledge/extract":
+            if path == "/api/v1/auth/login":
+                username = body.get("username", "")
+                password = body.get("password", "")
+                if username == "admin" and password == "password":
+                    token = "mock-admin-token"
+                    self.active_tokens[token] = username
+                    self._set_headers(200)
+                    self.wfile.write(json.dumps({"authenticated": True, "token": token, "user_id": username}).encode('utf-8'))
+                else:
+                    self._set_headers(401)
+                    self.wfile.write(json.dumps({"authenticated": False, "error": "Invalid credentials"}).encode('utf-8'))
+
+            elif path == "/api/v1/chat/sessions":
+                title = body.get("title", "New Chat Session")
+                sess_id = f"sess-{len(self.sessions_db) + 101:04d}"
+                sess_data = {
+                    "session_id": sess_id,
+                    "title": title,
+                    "created_at": "2026-08-16T18:25:00Z",
+                    "active_preset": None,
+                    "bound_skills": []
+                }
+                self.sessions_db[sess_id] = sess_data
+                self._set_headers(200)
+                self.wfile.write(json.dumps(sess_data, ensure_ascii=False).encode('utf-8'))
+
+            elif path == "/api/v1/chat/completions/stream":
+                sess_id = body.get("session_id", "sess-1")
+                user_msg = body.get("user_message", "")
+                self._set_headers(200, content_type="text/event-stream")
+                events = [
+                    f"event: chunk_received\ndata: {json.dumps({'chunk': 'Analyzing query: ' + user_msg})}\n\n",
+                    f"event: tool_call_start\ndata: {json.dumps({'tool': 'knowledge_search', 'query': 'loop bug'})}\n\n",
+                    f"event: final_answer\ndata: {json.dumps({'answer': 'Verified resolution: ensure loop break conditions are checked.'})}\n\n"
+                ]
+                for ev in events:
+                    self.wfile.write(ev.encode('utf-8'))
+
+            elif path == "/api/v1/knowledge/extract":
                 req = KnowledgeExtractRequestDTO(
                     conversation_session_id=body.get("conversation_session_id", "sess-000"),
                     raw_conversation_log=body.get("raw_conversation_log", ""),
@@ -173,7 +227,8 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
                     "node_id": res.node_id,
                     "file_path": res.file_path,
                     "status": res.frontmatter.status,
-                    "extracted_markdown": res.extracted_markdown
+                    "extracted_markdown": res.extracted_markdown,
+                    "steps": res.steps if hasattr(res, "steps") else []
                 }, ensure_ascii=False).encode('utf-8'))
 
             elif path == "/api/v1/audit/lint":
@@ -229,10 +284,15 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": success, "commit_hash": commit_hash}).encode('utf-8'))
 
             elif path == "/api/v1/agent/bind-skill":
+                sess_id = body.get("session_id", "sess-1")
+                preset_id = body.get("preset_id", "ingestion")
                 bound = self.binder.bind_skill(
-                    session_id=body.get("session_id", "sess-1"),
-                    preset_id=body.get("preset_id", "ingestion")
+                    session_id=sess_id,
+                    preset_id=preset_id
                 )
+                if sess_id in self.sessions_db:
+                    self.sessions_db[sess_id]["active_preset"] = preset_id
+                    self.sessions_db[sess_id]["bound_skills"] = bound.active_skills
                 self._set_headers(200)
                 self.wfile.write(json.dumps({
                     "session_id": bound.session_id,

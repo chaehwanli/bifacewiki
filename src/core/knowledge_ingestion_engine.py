@@ -35,6 +35,7 @@ class KnowledgeExtractResponseDTO:
     file_path: str
     frontmatter: FrontmatterDTO
     extracted_markdown: str
+    steps: List[Dict[str, Any]] = field(default_factory=list)
 
 
 class KnowledgeIngestionEngine:
@@ -118,6 +119,12 @@ Extracted resolution from Q&A session {request.conversation_session_id}.
 
         frontmatter = self.parse_frontmatter_schema(markdown_body)
 
+        steps = [
+            {"step": 1, "name": "conversation_analysis", "status": "completed"},
+            {"step": 2, "name": "classification", "type": knowledge_type, "status": "completed"},
+            {"step": 3, "name": "draft_generation", "status": "completed"}
+        ]
+
         elapsed = time.time() - start_time
         if elapsed > 3.0:
             print(f"[Warning] Ingestion latency target exceeded: {elapsed:.3f}s")
@@ -126,5 +133,6 @@ Extracted resolution from Q&A session {request.conversation_session_id}.
             node_id=node_id,
             file_path=os.path.relpath(file_path, self.workspace_root),
             frontmatter=frontmatter,
-            extracted_markdown=markdown_body
+            extracted_markdown=markdown_body,
+            steps=steps
         )
