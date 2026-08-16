@@ -4,6 +4,7 @@
 > **Date**: 2026-08-16  
 > **Author**: Antigravity AI & Knowledge Architecture Team  
 > **Related Architecture Document**: [.doc/0816_knowledge_platform_architecture_spec.md](file:///home/chaehwan/bifacewiki/bifacewiki/.doc/0816_knowledge_platform_architecture_spec.md)  
+> **Related Use Case Document**: [.doc/0816_usecase_spec.md](file:///home/chaehwan/bifacewiki/bifacewiki/.doc/0816_usecase_spec.md)  
 > **Status**: Approved Requirements Standard (Final Specification)  
 
 ---
@@ -102,5 +103,5 @@
 
 본 명세서는 **REQ (기능 요구사항)**, **DSGN (설계 모듈)**, **TEST (검증 테스트 케이스)**, **NFR (비기능 요구사항)** 간의 완전한 매핑 체계를 제공합니다.
 
-1. **아키텍처 명세서 동기화**: [.doc/0816_knowledge_platform_architecture_spec.md](file:///home/chaehwan/bifacewiki/bifacewiki/.doc/0816_knowledge_platform_architecture_spec.md)의 UC-001 ~ UC-011 상세 명세서 내 추적성(Traceability) 및 비기능(NFR) 항목을 본 문서의 정식 식별 태그로 참조 동기화합니다.
+1. **명세서 동기화**: [.doc/0816_knowledge_platform_architecture_spec.md](file:///home/chaehwan/bifacewiki/bifacewiki/.doc/0816_knowledge_platform_architecture_spec.md) 및 [.doc/0816_usecase_spec.md](file:///home/chaehwan/bifacewiki/bifacewiki/.doc/0816_usecase_spec.md)의 UC-001 ~ UC-011 상세 명세서 내 추적성(Traceability) 및 비기능(NFR) 항목을 본 문서의 정식 식별 태그로 참조 동기화합니다.
 2. **개발 및 검증 기준**: 개발팀은 `DSGN` 모듈 단위로 코드를 작성하고, QA팀은 `TEST` 케이스를 바탕으로 단위/통합 테스트를 진행하며, `NFR` 기준을 기준으로 시스템 성능 및 보안을 검증합니다.

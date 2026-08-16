@@ -1,4 +1,4 @@
-# Andrej Karpathy - LLM Wiki (llm-wiki.md)
+m# Andrej Karpathy - LLM Wiki (llm-wiki.md)
 
 - **Source URL**: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 - **Title**: llm-wiki: A pattern for building personal knowledge bases using LLMs
