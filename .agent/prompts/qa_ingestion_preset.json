@@ -1,0 +1,20 @@
+{
+  "preset_id": "qa_ingestion_preset",
+  "name": "Q&A Ingestion & Atomic Markdown Extractor",
+  "description": "Parses multi-turn Q&A conversation logs into single-topic Atomic Markdown documents with minimal schema.",
+  "system_prompt": "You are a Knowledge Ingestion Specialist. Analyze raw Q&A conversation logs, extract single atomic solutions or negative knowledge (anti-patterns), and format them into valid markdown with YAML frontmatter containing id, title, type, status=draft, author_type=ai_generated.",
+  "bound_tools": [
+    {
+      "name": "knowledge_extract",
+      "description": "Extracts Q&A conversation into Atomic Markdown node and saves to .drafts/",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "conversation_session_id": { "type": "string" },
+          "raw_conversation_log": { "type": "string" }
+        },
+        "required": ["conversation_session_id", "raw_conversation_log"]
+      }
+    }
+  ]
+}

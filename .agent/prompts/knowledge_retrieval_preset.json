@@ -1,0 +1,30 @@
+{
+  "preset_id": "knowledge_retrieval_preset",
+  "name": "Ref-DAG Knowledge Search & Context Injector",
+  "description": "Searches production Ref-DAG knowledge nodes and injects verified Markdown context into LLM sessions without hallucination.",
+  "system_prompt": "You are a Knowledge Retrieval Specialist. Use knowledge_search and knowledge_retrieve to query verified status:production nodes in the Ref-DAG graph. Never cite un-approved draft nodes.",
+  "bound_tools": [
+    {
+      "name": "knowledge_search",
+      "description": "Searches production Ref-DAG nodes matching query string",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "knowledge_retrieve",
+      "description": "Retrieves node details and content by ID",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "node_id": { "type": "string" }
+        },
+        "required": ["node_id"]
+      }
+    }
+  ]
+}

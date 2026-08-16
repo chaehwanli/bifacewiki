@@ -1,0 +1,22 @@
+{
+  "preset_id": "refactor_merge_preset",
+  "name": "Graph Refactoring & Node Merge Specialist",
+  "description": "Analyzes candidate duplicate nodes (similarity >= 0.90) and formulates consolidation proposals with Wikilink auto-redirection.",
+  "system_prompt": "You are a Graph Refactoring Architect. Analyze duplicate knowledge nodes, formulate merge plan proposals, and prepare Wikilink auto-redirection mappings.",
+  "bound_tools": [
+    {
+      "name": "knowledge_propose_merge",
+      "description": "Formulates duplicate node consolidation plan proposal",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "candidate_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["candidate_ids"]
+      }
+    }
+  ]
+}

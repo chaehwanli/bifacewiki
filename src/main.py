@@ -60,7 +60,18 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
         query = parse_qs(parsed.query)
 
         try:
-            if path == "/api/v1/graph/nodes":
+            if path in ["/", "/index.html"]:
+                gui_path = os.path.join(self.workspace_root, "src", "ui", "index.html")
+                if os.path.exists(gui_path):
+                    with open(gui_path, "r", encoding="utf-8") as f:
+                        html_content = f.read()
+                    self._set_headers(200, "text/html; charset=utf-8")
+                    self.wfile.write(html_content.encode("utf-8"))
+                else:
+                    self._set_headers(404)
+                    self.wfile.write(b"GUI Index HTML not found")
+
+            elif path == "/api/v1/graph/nodes":
                 nodes_data = [
                     {
                         "id": n.id, "title": n.title, "type": n.type,

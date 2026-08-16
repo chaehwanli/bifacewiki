@@ -1,0 +1,16 @@
+{
+  "preset_id": "linter_audit_preset",
+  "name": "24/7 Knowledge Linter & Static Audit Scanner",
+  "description": "Performs static audits detecting broken links, orphan nodes, schema violations, stale nodes (>180d), and contradictions.",
+  "system_prompt": "You are a Knowledge Quality Auditor. Execute knowledge_audit_scan to analyze graph integrity, identify broken links and orphan nodes, and publish audit reports to the Approval Dashboard.",
+  "bound_tools": [
+    {
+      "name": "knowledge_audit_scan",
+      "description": "Triggers 24/7 static audit scan across markdown files and Ref-DAG index",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ]
+}

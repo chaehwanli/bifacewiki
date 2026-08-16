@@ -1,0 +1,22 @@
+{
+  "agent_id": "bifacewiki_knowledge_agent",
+  "name": "Bifacewiki Knowledge Agent",
+  "version": "1.0.0",
+  "description": "Agent for ingesting, auditing, binding skills, and retrieving knowledge from Ref-DAG store.",
+  "skills": [
+    "ingestion",
+    "indexer_dag",
+    "git_adapter",
+    "linter_engine",
+    "approval_gate",
+    "refactor_engine",
+    "agent_binder",
+    "presentation_ui"
+  ],
+  "prompt_presets": [
+    "qa_ingestion_preset",
+    "knowledge_retrieval_preset",
+    "linter_audit_preset",
+    "refactor_merge_preset"
+  ]
+}
