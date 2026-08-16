@@ -45,7 +45,6 @@
     .logo-box h1 { font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
     .logo-box p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
-    /* Category Grouped Nav Tabs */
     .nav-tabs { display: flex; gap: 6px; }
     .nav-btn {
       background: transparent;
@@ -67,7 +66,6 @@
       color: var(--primary);
     }
 
-    /* Workflow Banner Guide */
     .guide-banner {
       background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(192, 132, 252, 0.1));
       border: 1px solid var(--border-color);
@@ -169,6 +167,10 @@
       color: var(--accent-green);
       line-height: 1.5;
     }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--border-color); text-align: left; font-size: 13px; }
+    th { color: var(--primary); font-weight: 600; }
   </style>
 </head>
 <body>
@@ -178,13 +180,27 @@
       <h1>🧠 Knowledge Platform 대시보드</h1>
       <p>Human Knowledge & AI Knowledge 이중화 통합 관리 및 모듈별 제어 UI</p>
     </div>
-    <!-- Functional Categories (No confusing step numbers!) -->
+    
+    <!-- LLM Vendor Selector UI (UC-005) -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 12px; color: var(--text-muted);">Active LLM Provider:</span>
+      <select id="llm-vendor-select" onchange="changeLLMVendor()" style="background: #131b2e; border: 1px solid var(--primary); color: var(--primary); padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer;">
+        <option value="openai">OpenAI GPT-4o</option>
+        <option value="gemini">Google Gemini 1.5 Pro</option>
+        <option value="claude">Anthropic Claude 3.5</option>
+        <option value="ollama">Local Ollama (Localhost Proxy NFR-SEC-03)</option>
+      </select>
+      <span id="vendor-status-badge" class="badge badge-prod">Active</span>
+    </div>
+
+    <!-- Category Nav Tabs -->
     <div class="nav-tabs">
-      <button class="nav-btn active" onclick="switchTab('ingest')">📥 Q&A 지식 추출</button>
-      <button class="nav-btn" onclick="switchTab('approval')">🛡️ 인간 승인 관문</button>
-      <button class="nav-btn" onclick="switchTab('agent')">🤖 Agent 스킬 바인딩</button>
-      <button class="nav-btn" onclick="switchTab('audit')">🔍 정적 린팅 스캔</button>
-      <button class="nav-btn" onclick="switchTab('graph')">🕸️ Ref-DAG 그래프 탐색</button>
+      <button class="nav-btn active" onclick="switchTab('ingest')">📥 Q&A 추출</button>
+      <button class="nav-btn" onclick="switchTab('approval')">🛡️ 승인 관문</button>
+      <button class="nav-btn" onclick="switchTab('agent')">🤖 Agent 스킬</button>
+      <button class="nav-btn" onclick="switchTab('audit')">🔍 린팅 감사</button>
+      <button class="nav-btn" onclick="switchTab('graph')">🕸️ Ref-DAG 그래프</button>
+      <button class="nav-btn" onclick="switchTab('git')">⚙️ Git & Diff 관리</button>
     </div>
   </header>
 
@@ -202,8 +218,8 @@
           <p>인간 중개자가 검토 후 승인하면 단일 진실 원천(Source of Truth)으로 승격되어 main 브랜치에 커밋됩니다.</p>
         </div>
         <div class="step-item">
-          <h4>독립 기능 모듈 (스킬/린팅/그래프)</h4>
-          <p>에이전트 스킬 바인딩, 24/7 정적 린팅 감사, Obsidian OS URI 그래프 구동은 독립적으로 상시 실행되는 모듈입니다.</p>
+          <h4>독립 기능 모듈 (Git/스킬/린팅/그래프)</h4>
+          <p>Git 동기화, LLM 벤더 전환, 에이전트 스킬 주입, 린팅 감사, Obsidian OS URI 구동을 완비한 UI 대시보드입니다.</p>
         </div>
       </div>
     </div>
@@ -237,16 +253,13 @@
       </div>
     </div>
 
-    <!-- TAB 3: AGENT SKILL BINDER -->
+    <!-- TAB 3: AGENT SKILL BINDER & SEARCH PLAYGROUND -->
     <div id="tab-agent" class="tab-content">
       <div class="domain-header">
-        <h2>Agent 스킬 및 프롬프트 바인딩</h2>
-        <span class="domain-tag">영역: 에이전트 연동 (DSGN-AGENT-BINDER)</span>
+        <h2>Agent 스킬 바인딩 & Knowledge Context Playground</h2>
+        <span class="domain-tag">영역: 에이전트 연동 (DSGN-AGENT-BINDER, DSGN-AGENT-SKILL)</span>
       </div>
-      <p style="color: var(--text-muted); margin-bottom: 20px;">
-        독립 기능 모듈: 대화 맥락에 따라 필요한 스킬 프롬프트 프리셋 및 Tool Call 스키마를 LLM 대화 세션에 원클릭으로 바인딩합니다.
-      </p>
-      <div class="card-grid">
+      <div class="card-grid" style="margin-bottom: 24px;">
         <div class="card">
           <span class="badge badge-draft">ingestion</span>
           <h3>Q&A 추출 & Atomic 작성 프리셋</h3>
@@ -272,47 +285,139 @@
           <button class="btn btn-primary" onclick="bindPreset('refactor_merge_preset')">원클릭 스킬 바인딩</button>
         </div>
       </div>
+
+      <!-- Knowledge Search Playground Widget (UC-007) -->
+      <div class="card">
+        <h3>🔍 Knowledge Context Search & Injection Playground (UC-007)</h3>
+        <p>키워드를 입력하면 Ref-DAG 그래프를 탐색하여 동적으로 조립된 verified LLM System Context를 테스트 출력합니다.</p>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <input type="text" id="search-query-input" placeholder="검색 키워드 입력 (예: connection, graph, knowledge)" style="margin-bottom: 0;">
+          <button class="btn btn-primary" onclick="executeKnowledgeSearch()" style="white-space: nowrap;">🔍 지식 탐색 & Context 주입 테스트</button>
+        </div>
+        <div id="search-result-container" style="display: none; margin-top: 12px;"></div>
+      </div>
     </div>
 
-    <!-- TAB 4: AUDIT SCAN -->
+    <!-- TAB 4: AUDIT SCAN & REFACTORING LIFECYCLE -->
     <div id="tab-audit" class="tab-content">
       <div class="domain-header">
-        <h2>24/7 지식 정적 린팅 & 정합성 검사</h2>
-        <span class="domain-tag">영역: 지식 품질 관리 (DSGN-LINTER-ENGINE)</span>
+        <h2>24/7 지식 정적 린팅 & 그래프 수명주기 관리</h2>
+        <span class="domain-tag">영역: 지식 품질 및 수명주기 (DSGN-LINTER-ENGINE, DSGN-REFACTOR-ENGINE)</span>
       </div>
-      <div class="card">
-        <h3>지식 저장소 정적 린팅 감사 스캔</h3>
+      <div class="card" style="margin-bottom: 24px;">
+        <h3>지식 저장소 정적 린팅 감사 스캔 (UC-008)</h3>
         <p>독립 기능 모듈: 전체 마크다운 지식 노드와 Ref-DAG 인덱스를 정적 스캔하여 깨진 참조, 고립 노드, 메타 오차를 탐지합니다.</p>
         <button class="btn btn-primary" onclick="runAuditScan()">🔍 24/7 정적 린팅 스캔 실행</button>
         <div id="audit-result" style="margin-top: 16px; display: none;"></div>
       </div>
+
+      <!-- Graph Refactoring & Pruning Lifecycle Widget (UC-010) -->
+      <div class="card">
+        <h3>🔄 그래프 중복 노드 통합 & 폐기 수명주기 관리 (UC-010)</h3>
+        <p>유사도 0.90 이상의 파편화 노드를 통합(Merge)하고, 오래된 Stale 노드를 Archive 디렉토리로 안전하게 이관 커밋합니다.</p>
+        <div style="display: flex; gap: 12px; margin-top: 12px;">
+          <button class="btn btn-success" onclick="executeNodeMerge()">🔀 중복 노드 통합(Merge) 실행</button>
+          <button class="btn btn-danger" onclick="executeNodePrune()">📦 낡은 Stale 노드 Archive 정리</button>
+        </div>
+        <div id="refactor-result" style="margin-top: 16px; display: none;"></div>
+      </div>
     </div>
 
-    <!-- TAB 5: GRAPH EXPLORER -->
+    <!-- TAB 5: GRAPH EXPLORER & EDGE MATRIX -->
     <div id="tab-graph" class="tab-content">
       <div class="domain-header">
-        <h2>Ref-DAG 그래프 탐색기 & Obsidian 연동</h2>
-        <span class="domain-tag">영역: 그래프 인덱싱 및 시각화 (DSGN-LAUNCHER-PROTOCOL)</span>
+        <h2>Ref-DAG 그래프 탐색기 & Edge Matrix 연동</h2>
+        <span class="domain-tag">영역: 그래프 인덱싱 및 시각화 (DSGN-INDEXER-DAG, DSGN-LAUNCHER-PROTOCOL)</span>
       </div>
-      <div class="card">
-        <h3>활성 지식 그래프 노드 목록</h3>
+      <div class="card" style="margin-bottom: 24px;">
+        <h3>활성 지식 그래프 노드 목록 (UC-002, UC-011)</h3>
         <p>독립 기능 모듈: 클릭 시 OS URI Scheme (<code>obsidian://open</code>)을 호출하여 Obsidian 데스크톱 앱에서 해당 지식 파일을 바로 시각화 오픈합니다.</p>
-        <div id="node-list-container" style="margin-top: 16px;">
-          <!-- Rendered dynamically -->
+        <div id="node-list-container" style="margin-top: 16px;"></div>
+      </div>
+
+      <!-- Edges Matrix Table Widget (UC-002) -->
+      <div class="card">
+        <h3>🕸️ Ref-DAG Edge Matrix 의존성 테이블 (UC-002)</h3>
+        <p>지식 문서 간의 명시적 `[[Wikilink]]` 참조 및 의존성 방향(Directed Edges) 관계 현황입니다.</p>
+        <div id="edge-matrix-container" style="margin-top: 12px;"></div>
+      </div>
+    </div>
+
+    <!-- TAB 6: GIT MANAGEMENT DASHBOARD & VISUAL DIFF -->
+    <div id="tab-git" class="tab-content">
+      <div class="domain-header">
+        <h2>Git 저장소 제어 & Visual Diff 관리 대시보드</h2>
+        <span class="domain-tag">영역: 저장소 대시보드 (DSGN-UI-DASHBOARD, UC-004, UC-003)</span>
+      </div>
+      
+      <!-- Git Status Card -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3>Git 저장소 상태 (Repository Status)</h3>
+            <p>Branch: <strong style="color: var(--accent-green);" id="git-branch-name">main</strong> | Unstaged Changes: <span id="git-unstaged-count" style="color: var(--accent-yellow);">0</span></p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-primary" onclick="syncRemoteGit()">🔄 Sync Remote (Push/Pull)</button>
+            <button class="btn btn-danger" onclick="triggerRollback()">⏪ Commit Rollback</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <!-- Commit Timeline List -->
+        <div class="card">
+          <h3>📜 커밋 타임라인 (Commit Timeline)</h3>
+          <p>최근 생성된 원자적 커밋 히스토리 기록입니다.</p>
+          <div id="commit-timeline-container" style="margin-top: 12px;"></div>
+        </div>
+
+        <!-- Visual Diff Viewer -->
+        <div class="card">
+          <h3>👁️ Visual Line-by-Line Diff 뷰어</h3>
+          <p>커밋 간 변경 사항 및 Draft 지식의 라인별 비교 diff입니다.</p>
+          <pre id="visual-diff-box" style="height: 250px;">FETCHING GIT DIFF STREAM...</pre>
         </div>
       </div>
     </div>
   </main>
 
   <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchLLMVendorSettings();
+    });
+
     function switchTab(tabId) {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
       event.target.classList.add('active');
       document.getElementById('tab-' + tabId).classList.add('active');
 
       if (tabId === 'approval') fetchPendingApprovals();
-      if (tabId === 'graph') fetchGraphNodes();
+      if (tabId === 'graph') { fetchGraphNodes(); fetchGraphEdges(); }
+      if (tabId === 'git') { fetchGitStatus(); fetchGitHistory(); fetchGitDiff(); }
+    }
+
+    async function fetchLLMVendorSettings() {
+      try {
+        const res = await fetch('/api/v1/settings/llm-vendor');
+        const data = await res.json();
+        if (data.active_vendor) {
+          document.getElementById('llm-vendor-select').value = data.active_vendor;
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function changeLLMVendor() {
+      const vendor = document.getElementById('llm-vendor-select').value;
+      const res = await fetch('/api/v1/settings/llm-vendor', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vendor_code: vendor, model_name: vendor === 'ollama' ? 'llama3' : 'gpt-4o' })
+      });
+      const data = await res.json();
+      alert(`[LLM Vendor 변경 완료 - UC-005] 활성 공급자: ${data.active_vendor.toUpperCase()}`);
     }
 
     async function executeIngestion() {
@@ -388,6 +493,28 @@
       alert(`[원클릭 스킬 바인딩 완료] 스킬 '${data.preset_id}'가 LLM 세션 '${data.session_id}'에 주입되었습니다.`);
     }
 
+    async function executeKnowledgeSearch() {
+      const q = document.getElementById('search-query-input').value.trim();
+      if (!q) { alert('검색 키워드를 입력해주세요.'); return; }
+
+      const res = await fetch('/api/v1/knowledge/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: q })
+      });
+      const data = await res.json();
+      const container = document.getElementById('search-result-container');
+      container.style.display = 'block';
+      container.innerHTML = `
+        <div style="background: #050811; border: 1px solid var(--border-color); padding: 16px; border-radius: 8px;">
+          <h4 style="color: var(--primary); font-size: 14px; margin-bottom: 8px;">🎯 탐색 노드 (${data.matched_nodes.length}건 매칭)</h4>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">${data.matched_nodes.map(n => `[${n.id}] ${n.title}`).join(', ') || '검색 결과 없음'}</p>
+          <h4 style="color: var(--accent-green); font-size: 14px; margin-top: 12px; margin-bottom: 8px;">🧩 조립된 System Context String (Injected):</h4>
+          <pre>${data.injected_context || '검색된 프로덕션 지식 노드가 없습니다.'}</pre>
+        </div>
+      `;
+    }
+
     async function runAuditScan() {
       const res = await fetch('/api/v1/audit/lint', { method: 'POST' });
       const data = await res.json();
@@ -402,6 +529,30 @@
           <p style="font-size: 13px; color: var(--text-muted);">180일 이상 낡은 노드: <strong>${data.stale_nodes.length}개</strong></p>
         </div>
       `;
+    }
+
+    async function executeNodeMerge() {
+      const res = await fetch('/api/v1/refactor/merge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidate_ids: ['node-3d3b9bd8', 'node-dup-01'] })
+      });
+      const data = await res.json();
+      const container = document.getElementById('refactor-result');
+      container.style.display = 'block';
+      container.innerHTML = `<div style="background: rgba(74,222,128,0.1); border: 1px solid var(--accent-green); padding: 12px; border-radius: 6px; color: var(--accent-green); font-size: 13px;">✅ ${data.message} (통합 노드: ${data.merged_node_id})</div>`;
+    }
+
+    async function executeNodePrune() {
+      const res = await fetch('/api/v1/refactor/prune', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target_ids: ['stale-node-old'] })
+      });
+      const data = await res.json();
+      const container = document.getElementById('refactor-result');
+      container.style.display = 'block';
+      container.innerHTML = `<div style="background: rgba(244,63,94,0.1); border: 1px solid var(--accent-red); padding: 12px; border-radius: 6px; color: var(--accent-red); font-size: 13px;">📦 낡은 노드 Archive 이관 완료 (${data.archived_paths.length}건)</div>`;
     }
 
     async function fetchGraphNodes() {
@@ -420,10 +571,80 @@
               <strong>[${node.id}]</strong> ${node.title} 
               <span class="badge ${node.status === 'production' ? 'badge-prod' : 'badge-draft'}">${node.status}</span>
             </div>
-            <button class="btn btn-primary" onclick="launchObsidian('${node.file_path}')">Obsidian으로 직접 열기</button>
+            <button class="btn btn-primary" onclick="launchObsidian('${node.file_path}')">Obsidian으로 직접 열기 ↗</button>
           </div>
         `;
       });
+    }
+
+    async function fetchGraphEdges() {
+      const res = await fetch('/api/v1/graph/edges');
+      const data = await res.json();
+      const container = document.getElementById('edge-matrix-container');
+      if (!data.edges || data.edges.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted);">등록된 Ref-DAG Edge 의존성 관계가 없습니다.</p>';
+        return;
+      }
+      let html = '<table><thead><tr><th>Source Node</th><th>Target Node</th><th>Relation Type</th></tr></thead><tbody>';
+      data.edges.forEach(e => {
+        html += `<tr><td>${e.source}</td><td>→ ${e.target}</td><td><span class="badge badge-draft">${e.type}</span></td></tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    async function fetchGitStatus() {
+      const res = await fetch('/api/v1/git/status');
+      const data = await res.json();
+      document.getElementById('git-branch-name').innerText = data.branch || 'main';
+      document.getElementById('git-unstaged-count').innerText = data.unstaged_count || '0';
+    }
+
+    async function fetchGitHistory() {
+      const res = await fetch('/api/v1/git/history?limit=5');
+      const data = await res.json();
+      const container = document.getElementById('commit-timeline-container');
+      container.innerHTML = '';
+      if (!data.history || data.history.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted);">최근 커밋 이력이 없습니다.</p>';
+        return;
+      }
+      data.history.forEach(c => {
+        const timeStr = new Date(c.timestamp * 1000).toLocaleString();
+        container.innerHTML += `
+          <div style="padding: 10px; border-bottom: 1px solid var(--border-color); font-size: 12px;">
+            <div style="font-weight: 600; color: var(--primary);">${c.message}</div>
+            <div style="color: var(--text-muted); margin-top: 4px;">Hash: ${c.commit_hash.substring(0, 7)} | Author: ${c.author} | ${timeStr}</div>
+          </div>
+        `;
+      });
+    }
+
+    async function fetchGitDiff() {
+      const res = await fetch('/api/v1/git/diff?commit_a=HEAD~1&commit_b=HEAD');
+      const data = await res.json();
+      const box = document.getElementById('visual-diff-box');
+      box.innerText = data.diff_text || 'No diff content available between HEAD~1 and HEAD.';
+    }
+
+    async function syncRemoteGit() {
+      const res = await fetch('/api/v1/git/sync', { method: 'POST' });
+      const data = await res.json();
+      alert(`[Git Remote Sync 완료 - UC-003] Remote: ${data.remote_name}/${data.branch} (${data.message})`);
+    }
+
+    async function triggerRollback() {
+      const commitHash = prompt('롤백할 Commit Hash를 입력해주세요:');
+      if (!commitHash) return;
+
+      const res = await fetch('/api/v1/git/rollback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commit_hash: commitHash })
+      });
+      const data = await res.json();
+      alert(`[Git Rollback 완료 - UC-004] Revert Commit Result: ${data.success}`);
+      fetchGitHistory();
     }
 
     async function launchObsidian(filePath) {

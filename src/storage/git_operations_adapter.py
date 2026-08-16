@@ -93,6 +93,29 @@ class GitOperationsAdapter:
 
         return commit_hash
 
+    def get_history(self, limit: int = 10) -> List[CommitDTO]:
+        """
+        Retrieves recent commit timeline history.
+        """
+        try:
+            # Format: HASH|AUTHOR|TIMESTAMP|MESSAGE
+            log_output = self._run_cmd(["log", f"-n{limit}", "--pretty=format:%H|%an|%at|%s"])
+            commits = []
+            if log_output:
+                for line in log_output.splitlines():
+                    parts = line.split("|", 3)
+                    if len(parts) >= 4:
+                        commits.append(CommitDTO(
+                            commit_hash=parts[0],
+                            author=parts[1],
+                            timestamp=float(parts[2]),
+                            message=parts[3],
+                            changed_files=[]
+                        ))
+            return commits
+        except Exception:
+            return []
+
     def get_diff(self, commit_a: str, commit_b: str = "HEAD") -> DiffResultDTO:
         """
         Calculates visual diff and summary statistics between two commits or HEAD.

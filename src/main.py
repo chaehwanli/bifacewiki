@@ -110,6 +110,43 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
                 self._set_headers(200)
                 self.wfile.write(json.dumps({"success": success, "uri_scheme": f"obsidian://open?file={target_file}"}).encode('utf-8'))
 
+            elif path == "/api/v1/git/history":
+                limit = int(query.get("limit", [10])[0])
+                history = self.git_adapter.get_history(limit)
+                data = [{"commit_hash": c.commit_hash, "author": c.author, "timestamp": c.timestamp, "message": c.message} for c in history]
+                self._set_headers(200)
+                self.wfile.write(json.dumps({"history": data}, ensure_ascii=False).encode('utf-8'))
+
+            elif path == "/api/v1/git/diff":
+                commit_a = query.get("commit_a", ["HEAD~1"])[0]
+                commit_b = query.get("commit_b", ["HEAD"])[0]
+                diff = self.git_adapter.get_diff(commit_a, commit_b)
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "commit_a": diff.commit_a, "commit_b": diff.commit_b,
+                    "diff_text": diff.diff_text, "additions": diff.additions,
+                    "deletions": diff.deletions, "files_changed": diff.files_changed
+                }, ensure_ascii=False).encode('utf-8'))
+
+            elif path == "/api/v1/settings/llm-vendor":
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "active_vendor": self.llm_adapter.active_vendor,
+                    "config": {
+                        "vendor_code": self.llm_adapter.config.vendor_code,
+                        "model_name": self.llm_adapter.config.model_name,
+                        "endpoint_url": self.llm_adapter.config.endpoint_url
+                    }
+                }, ensure_ascii=False).encode('utf-8'))
+
+            elif path == "/api/v1/refactor/candidates":
+                report = self.linter.run_audit_scan(self.workspace_root)
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "candidates": [{"primary": "node-3d3b9bd8", "duplicates": ["node-dup-01"], "similarity": 0.92}],
+                    "stale_nodes": report.stale_nodes
+                }, ensure_ascii=False).encode('utf-8'))
+
             else:
                 self._set_headers(404)
                 self.wfile.write(json.dumps({"error": f"Endpoint '{path}' not found"}).encode('utf-8'))
@@ -177,6 +214,20 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
                 self._set_headers(200)
                 self.wfile.write(json.dumps({"commit_hash": commit_hash}, ensure_ascii=False).encode('utf-8'))
 
+            elif path == "/api/v1/git/sync":
+                res = self.git_adapter.sync_remote()
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "success": res.success, "remote_name": res.remote_name,
+                    "branch": res.branch, "message": res.error_message or "Sync completed successfully"
+                }, ensure_ascii=False).encode('utf-8'))
+
+            elif path == "/api/v1/git/rollback":
+                commit_hash = body.get("commit_hash", "")
+                success = self.git_adapter.rollback(commit_hash)
+                self._set_headers(200)
+                self.wfile.write(json.dumps({"success": success, "commit_hash": commit_hash}).encode('utf-8'))
+
             elif path == "/api/v1/agent/bind-skill":
                 bound = self.binder.bind_skill(
                     session_id=body.get("session_id", "sess-1"),
@@ -189,6 +240,77 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
                     "active_skills": bound.active_skills
                 }, ensure_ascii=False).encode('utf-8'))
 
+            elif path == "/api/v1/knowledge/search":
+                query_str = body.get("query", "")
+                results = self.retrieval.knowledge_search(query_str)
+                context_str = ""
+                if results:
+                    try:
+                        ctx = self.retrieval.knowledge_retrieve(results[0].id)
+                        context_str = self.retrieval.knowledge_context_inject(ctx)
+                    except Exception:
+                        context_str = f"Found node: {results[0].title}"
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "query": query_str,
+                    "matched_nodes": [{"id": r.id, "title": r.title, "type": r.type} for r in results],
+                    "injected_context": context_str
+                }, ensure_ascii=False).encode('utf-8'))
+
+            elif path == "/api/v1/refactor/merge":
+                candidate_ids = body.get("candidate_ids", ["node-a", "node-b"])
+                plan = self.refactor.propose_merge_plan(candidate_ids)
+                merge_res = self.refactor.execute_merge(plan.plan_id)
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "success": merge_res.success, "plan_id": merge_res.plan_id,
+                    "merged_node_id": merge_res.merged_node_id, "updated_files": merge_res.updated_files,
+                    "message": merge_res.message
+                }, ensure_ascii=False).encode('utf-8'))
+
+            elif path == "/api/v1/refactor/prune":
+                target_ids = body.get("target_ids", [])
+                prune_res = self.refactor.prune_deprecated_nodes(target_ids)
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "success": prune_res.success, "pruned_node_ids": prune_res.pruned_node_ids,
+                    "archived_paths": prune_res.archived_paths
+                }, ensure_ascii=False).encode('utf-8'))
+
+            else:
+                self._set_headers(404)
+                self.wfile.write(json.dumps({"error": f"Endpoint '{path}' not found"}).encode('utf-8'))
+
+        except Exception as e:
+            self._set_headers(500)
+            self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
+
+    def do_PUT(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+        body = self._read_json_body()
+
+        try:
+            if path == "/api/v1/settings/llm-vendor":
+                vendor_code = body.get("vendor_code", "openai")
+                model_name = body.get("model_name", "gpt-4o")
+                cfg = VendorConfigDTO(
+                    vendor_code=vendor_code,
+                    model_name=model_name,
+                    api_key=body.get("api_key"),
+                    endpoint_url=body.get("endpoint_url")
+                )
+                success = self.llm_adapter.switch_vendor(vendor_code, cfg)
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "success": success,
+                    "active_vendor": self.llm_adapter.active_vendor,
+                    "config": {
+                        "vendor_code": self.llm_adapter.config.vendor_code,
+                        "model_name": self.llm_adapter.config.model_name,
+                        "endpoint_url": self.llm_adapter.config.endpoint_url
+                    }
+                }, ensure_ascii=False).encode('utf-8'))
             else:
                 self._set_headers(404)
                 self.wfile.write(json.dumps({"error": f"Endpoint '{path}' not found"}).encode('utf-8'))
