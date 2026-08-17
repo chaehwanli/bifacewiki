@@ -30,6 +30,7 @@ The purpose of this project is to categorize Knowledge into Human Knowledge and 
 - **[approval_gate](file:///home/chaehwan/bifacewiki/bifacewiki/.skill/approval_gate/SKILL.md)**: `DSGN-APPROVAL-GATE` Human Approval Gate Manager (`.drafts/` 격리, Model Collapse 예방 `NFR-SEC-01`, 인간 승인 API)
 - **[refactor_engine](file:///home/chaehwan/bifacewiki/bifacewiki/.skill/refactor_engine/SKILL.md)**: `DSGN-REFACTOR-ENGINE` Graph Refactoring Engine (파편화 노드 통합 제안 $\ge 0.90$, Wikilink auto-redirect, Archive 이관)
 - **[agent_binder](file:///home/chaehwan/bifacewiki/bifacewiki/.skill/agent_binder/SKILL.md)**: `DSGN-LLM-ADAPTER`, `DSGN-AGENT-BINDER`, `DSGN-AGENT-SKILL` LLM Adapter & Agent Binder (Universal LLM, Ollama proxy `NFR-SEC-03`, 동적 스킬 바인딩, Context 주입)
+- **[antigravity_cli](file:///home/chaehwan/bifacewiki/bifacewiki/.skill/antigravity_cli/SKILL.md)**: Google Antigravity CLI Integration & Operation (설치, 로그인/인증, 실체 연동, 디버깅, 네트워크 에러/재시도 처리 스킬)
 - **[presentation_ui](file:///home/chaehwan/bifacewiki/bifacewiki/.skill/presentation_ui/SKILL.md)**: `DSGN-UI-DASHBOARD`, `DSGN-LAUNCHER-PROTOCOL` Presentation UI & Launcher (Git Dashboard, Visual Diff, Approval Widget, Obsidian URI launcher)
 
 ## agent

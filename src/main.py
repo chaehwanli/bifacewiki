@@ -38,6 +38,10 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
     sessions_db: dict = {}
     active_tokens: dict = {"mock-admin-token": "admin"}
 
+    def log_message(self, format, *args):
+        """Suppresses default terminal access logs so all platform logs are output in browser console."""
+        pass
+
     def _set_headers(self, status_code: int = 200, content_type: str = "application/json"):
         self.send_response(status_code)
         self.send_header("Content-Type", content_type)

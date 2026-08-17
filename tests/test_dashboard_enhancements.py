@@ -58,6 +58,22 @@ class TestLLMVendorAdapterEnhancements(unittest.TestCase):
         self.assertEqual(self.adapter.active_vendor, "ollama")
         self.assertEqual(self.adapter.config.endpoint_url, "http://127.0.0.1:11434")
 
+    def test_antigravity_real_and_mock_notices(self):
+        """Test that Antigravity vendor executes non-mock call and other vendors return explicit MOCK notices."""
+        from src.agent.universal_llm_vendor_adapter import LLMInvokeRequestDTO
+        
+        # 1. Antigravity real invocation
+        self.adapter.switch_vendor("antigravity", VendorConfigDTO(vendor_code="antigravity"))
+        res_ag = self.adapter.invoke(LLMInvokeRequestDTO(prompt="test query"))
+        self.assertFalse(res_ag.is_mock)
+        self.assertIn("Google Antigravity CLI Real Response", res_ag.content)
+
+        # 2. OpenAI mock notice
+        self.adapter.switch_vendor("openai", VendorConfigDTO(vendor_code="openai"))
+        res_mock = self.adapter.invoke(LLMInvokeRequestDTO(prompt="test query"))
+        self.assertTrue(res_mock.is_mock)
+        self.assertIn("[MOCK - OPENAI (Not Connected)]", res_mock.content)
+
 
 class TestGraphRefactoringEngineEnhancements(unittest.TestCase):
     def setUp(self):

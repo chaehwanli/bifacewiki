@@ -400,14 +400,42 @@
       if (tabId === 'git') { fetchGitStatus(); fetchGitHistory(); fetchGitDiff(); }
     }
 
+    function logToBrowserConsole(type, category, title, data = null) {
+      const timestamp = new Date().toLocaleTimeString();
+      const badges = {
+        info: 'ℹ️',
+        success: '✅',
+        warn: '⚠️',
+        error: '❌',
+        llm: '🤖',
+        git: '📦',
+        audit: '📊'
+      };
+      const badge = badges[type] || 'ℹ️';
+      console.groupCollapsed(`${badge} [${timestamp}] [Bifacewiki Log: ${category.toUpperCase()}] ${title}`);
+      if (data) {
+        console.log("Details / Payload:", data);
+      }
+      console.groupEnd();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log("%c🧠 Knowledge Platform Browser Log Monitoring Active", "color: #38bdf8; font-size: 14px; font-weight: bold; background: #131b2e; padding: 6px 12px; border-radius: 6px; border: 1px solid #38bdf8;");
+      console.info("모든 REST API 요청, LLM 벤더 연동, 승인 관문 및 감사 스캔 로그가 터미널 출력 대신 브라우저 콘솔(Console)로 리다이렉트되어 출력됩니다.");
+      fetchLLMVendorSettings();
+    });
+
     async function fetchLLMVendorSettings() {
       try {
         const res = await fetch('/api/v1/settings/llm-vendor');
         const data = await res.json();
         if (data.active_vendor) {
           document.getElementById('llm-vendor-select').value = data.active_vendor;
+          logToBrowserConsole('llm', 'LLM Settings', `Current Active Vendor: ${data.active_vendor.toUpperCase()}`, data);
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        logToBrowserConsole('error', 'LLM Settings', 'Failed to fetch LLM vendor settings', e);
+      }
     }
 
     async function changeLLMVendor() {
@@ -421,12 +449,14 @@
         });
         const data = await res.json();
         if (res.ok && data && data.active_vendor) {
+          logToBrowserConsole('llm', 'LLM Vendor Switch', `Active Provider Changed to ${data.active_vendor.toUpperCase()}`, data);
           alert(`[LLM Vendor 변경 완료 - UC-005] 활성 공급자: ${data.active_vendor.toUpperCase()}`);
         } else {
+          logToBrowserConsole('error', 'LLM Vendor Switch', 'Vendor switch failed', data);
           alert(`[LLM Vendor 변경 실패] ${data.error || '서버 오류가 발생했습니다.'}`);
         }
       } catch (e) {
-        console.error("LLM Vendor 변경 중 오류 발생:", e);
+        logToBrowserConsole('error', 'LLM Vendor Switch', 'Exception during vendor switch', e);
         alert(`[LLM Vendor 변경 오류] ${e.message}`);
       }
     }
@@ -441,6 +471,7 @@
         body: JSON.stringify({ conversation_session_id: 'web-ui-sess', raw_conversation_log: text })
       });
       const data = await res.json();
+      logToBrowserConsole('llm', 'Q&A Ingestion', `Draft Extract Complete (${data.node_id})`, data);
       const container = document.getElementById('ingest-result');
       container.style.display = 'block';
       container.innerHTML = `
@@ -459,6 +490,7 @@
       try {
         const res = await fetch('/api/v1/approval/pending');
         const data = await res.json();
+        logToBrowserConsole('info', 'Approval Gate', `Fetched ${data.pending_approvals ? data.pending_approvals.length : 0} pending items`, data);
         const container = document.getElementById('approval-queue-list');
         container.innerHTML = '';
         if (!data.pending_approvals || data.pending_approvals.length === 0) {
@@ -482,7 +514,7 @@
             </div>
           `;
         });
-      } catch (e) { console.error(e); }
+      } catch (e) { logToBrowserConsole('error', 'Approval Gate', 'Error fetching pending approvals', e); }
     }
 
     async function decideApproval(nodeId, decision) {
@@ -492,6 +524,7 @@
         body: JSON.stringify({ node_id: nodeId, decision: decision, broker_id: 'human_broker_admin' })
       });
       const data = await res.json();
+      logToBrowserConsole('success', 'Approval Gate', `Decision (${decision}) executed for node ${nodeId}`, data);
       alert(data.message);
       fetchPendingApprovals();
     }
@@ -503,6 +536,7 @@
         body: JSON.stringify({ session_id: 'web-ui-session', preset_id: presetId })
       });
       const data = await res.json();
+      logToBrowserConsole('info', 'Skill Binding', `Skill preset '${presetId}' bound`, data);
       alert(`[원클릭 스킬 바인딩 완료] 스킬 '${data.preset_id}'가 LLM 세션 '${data.session_id}'에 주입되었습니다.`);
     }
 
@@ -516,6 +550,7 @@
         body: JSON.stringify({ query: q })
       });
       const data = await res.json();
+      logToBrowserConsole('info', 'Knowledge Search', `Query '${q}' executed`, data);
       const container = document.getElementById('search-result-container');
       container.style.display = 'block';
       container.innerHTML = `
@@ -531,6 +566,7 @@
     async function runAuditScan() {
       const res = await fetch('/api/v1/audit/lint', { method: 'POST' });
       const data = await res.json();
+      logToBrowserConsole('audit', 'Linter Audit', 'Static 24/7 audit scan completed', data);
       const container = document.getElementById('audit-result');
       container.style.display = 'block';
       container.innerHTML = `
@@ -551,6 +587,7 @@
         body: JSON.stringify({ candidate_ids: ['node-3d3b9bd8', 'node-dup-01'] })
       });
       const data = await res.json();
+      logToBrowserConsole('info', 'Refactor Engine', 'Merge operation completed', data);
       const container = document.getElementById('refactor-result');
       container.style.display = 'block';
       container.innerHTML = `<div style="background: rgba(74,222,128,0.1); border: 1px solid var(--accent-green); padding: 12px; border-radius: 6px; color: var(--accent-green); font-size: 13px;">✅ ${data.message} (통합 노드: ${data.merged_node_id})</div>`;
@@ -563,6 +600,7 @@
         body: JSON.stringify({ target_ids: ['stale-node-old'] })
       });
       const data = await res.json();
+      logToBrowserConsole('info', 'Refactor Engine', 'Archive prune operation completed', data);
       const container = document.getElementById('refactor-result');
       container.style.display = 'block';
       container.innerHTML = `<div style="background: rgba(244,63,94,0.1); border: 1px solid var(--accent-red); padding: 12px; border-radius: 6px; color: var(--accent-red); font-size: 13px;">📦 낡은 노드 Archive 이관 완료 (${data.archived_paths.length}건)</div>`;
@@ -571,6 +609,7 @@
     async function fetchGraphNodes() {
       const res = await fetch('/api/v1/graph/nodes');
       const data = await res.json();
+      logToBrowserConsole('info', 'Ref-DAG Graph', `Fetched ${data.nodes ? data.nodes.length : 0} nodes`, data);
       const container = document.getElementById('node-list-container');
       container.innerHTML = '';
       if (!data.nodes || data.nodes.length === 0) {
@@ -593,6 +632,7 @@
     async function fetchGraphEdges() {
       const res = await fetch('/api/v1/graph/edges');
       const data = await res.json();
+      logToBrowserConsole('info', 'Ref-DAG Graph', `Fetched ${data.edges ? data.edges.length : 0} edges`, data);
       const container = document.getElementById('edge-matrix-container');
       if (!data.edges || data.edges.length === 0) {
         container.innerHTML = '<p style="color: var(--text-muted);">등록된 Ref-DAG Edge 의존성 관계가 없습니다.</p>';
@@ -609,6 +649,7 @@
     async function fetchGitStatus() {
       const res = await fetch('/api/v1/git/status');
       const data = await res.json();
+      logToBrowserConsole('git', 'Git Status', `Branch: ${data.branch}`, data);
       document.getElementById('git-branch-name').innerText = data.branch || 'main';
       document.getElementById('git-unstaged-count').innerText = data.unstaged_count || '0';
     }
@@ -616,6 +657,7 @@
     async function fetchGitHistory() {
       const res = await fetch('/api/v1/git/history?limit=5');
       const data = await res.json();
+      logToBrowserConsole('git', 'Git History', `Fetched ${data.history ? data.history.length : 0} commits`, data);
       const container = document.getElementById('commit-timeline-container');
       container.innerHTML = '';
       if (!data.history || data.history.length === 0) {
@@ -636,6 +678,7 @@
     async function fetchGitDiff() {
       const res = await fetch('/api/v1/git/diff?commit_a=HEAD~1&commit_b=HEAD');
       const data = await res.json();
+      logToBrowserConsole('git', 'Git Diff', 'Diff calculated', data);
       const box = document.getElementById('visual-diff-box');
       box.innerText = data.diff_text || 'No diff content available between HEAD~1 and HEAD.';
     }
@@ -643,6 +686,7 @@
     async function syncRemoteGit() {
       const res = await fetch('/api/v1/git/sync', { method: 'POST' });
       const data = await res.json();
+      logToBrowserConsole('git', 'Git Sync', `Remote Sync Result: ${data.success}`, data);
       alert(`[Git Remote Sync 완료 - UC-003] Remote: ${data.remote_name}/${data.branch} (${data.message})`);
     }
 
@@ -656,6 +700,7 @@
         body: JSON.stringify({ commit_hash: commitHash })
       });
       const data = await res.json();
+      logToBrowserConsole('git', 'Git Rollback', `Rollback executed to ${commitHash}`, data);
       alert(`[Git Rollback 완료 - UC-004] Revert Commit Result: ${data.success}`);
       fetchGitHistory();
     }
@@ -663,6 +708,7 @@
     async function launchObsidian(filePath) {
       const res = await fetch(`/api/v1/external/launch?tool_type=obsidian&target_file=${encodeURIComponent(filePath)}`);
       const data = await res.json();
+      logToBrowserConsole('info', 'Launcher', `Obsidian launched: ${data.uri_scheme}`, data);
       alert(`[OS URI Scheme 실행 - UC-011] Obsidian 구동: ${data.uri_scheme}`);
     }
   </script>
