@@ -104,3 +104,12 @@ def test_uc005_ollama_sandbox_isolation():
     """TEST-UC005-01 & NFR-SEC-03: Ollama Localhost Proxy Sandbox Isolation."""
     adapter = UniversalLLMVendorAdapter(initial_vendor="ollama")
     assert adapter.config.endpoint_url == "http://127.0.0.1:11434"
+
+
+def test_uc005_antigravity_vendor_switch():
+    """TEST-UC005-02: Google Antigravity CLI LLM Vendor Switch support."""
+    adapter = UniversalLLMVendorAdapter(initial_vendor="openai")
+    cfg = VendorConfigDTO(vendor_code="antigravity", model_name="antigravity-agent-v1")
+    assert adapter.switch_vendor("antigravity", cfg) is True
+    assert adapter.active_vendor == "antigravity"
+

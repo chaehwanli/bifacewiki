@@ -185,6 +185,7 @@
     <div style="display: flex; align-items: center; gap: 10px;">
       <span style="font-size: 12px; color: var(--text-muted);">Active LLM Provider:</span>
       <select id="llm-vendor-select" onchange="changeLLMVendor()" style="background: #131b2e; border: 1px solid var(--primary); color: var(--primary); padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer;">
+        <option value="antigravity" selected>Google Antigravity CLI</option>
         <option value="openai">OpenAI GPT-4o</option>
         <option value="gemini">Google Gemini 1.5 Pro</option>
         <option value="claude">Anthropic Claude 3.5</option>
@@ -410,14 +411,24 @@
     }
 
     async function changeLLMVendor() {
-      const vendor = document.getElementById('llm-vendor-select').value;
-      const res = await fetch('/api/v1/settings/llm-vendor', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vendor_code: vendor, model_name: vendor === 'ollama' ? 'llama3' : 'gpt-4o' })
-      });
-      const data = await res.json();
-      alert(`[LLM Vendor 변경 완료 - UC-005] 활성 공급자: ${data.active_vendor.toUpperCase()}`);
+      try {
+        const vendor = document.getElementById('llm-vendor-select').value;
+        const modelName = vendor === 'antigravity' ? 'antigravity-agent-v1' : (vendor === 'ollama' ? 'llama3' : 'gpt-4o');
+        const res = await fetch('/api/v1/settings/llm-vendor', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vendor_code: vendor, model_name: modelName })
+        });
+        const data = await res.json();
+        if (res.ok && data && data.active_vendor) {
+          alert(`[LLM Vendor 변경 완료 - UC-005] 활성 공급자: ${data.active_vendor.toUpperCase()}`);
+        } else {
+          alert(`[LLM Vendor 변경 실패] ${data.error || '서버 오류가 발생했습니다.'}`);
+        }
+      } catch (e) {
+        console.error("LLM Vendor 변경 중 오류 발생:", e);
+        alert(`[LLM Vendor 변경 오류] ${e.message}`);
+      }
     }
 
     async function executeIngestion() {
@@ -435,6 +446,8 @@
       container.innerHTML = `
         <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid var(--accent-green); padding: 16px; border-radius: 8px;">
           <h4 style="color: var(--accent-green); font-size: 14px; margin-bottom: 8px;">✅ Draft 지식 추출 완료! (.drafts/에 격리 저장됨)</h4>
+          <p style="font-size: 13px; color: var(--text-main);"><strong>처리 LLM 공급자:</strong> ${(data.active_vendor || 'antigravity').toUpperCase()}</p>
+          <p style="font-size: 13px; color: var(--text-main);"><strong>LLM 응답 메시지:</strong> ${data.llm_response || 'N/A'}</p>
           <p style="font-size: 13px; color: var(--text-main);"><strong>노드 ID:</strong> ${data.node_id}</p>
           <p style="font-size: 13px; color: var(--text-main);"><strong>저장 위치:</strong> ${data.file_path}</p>
           <pre style="margin-top: 10px;">${data.extracted_markdown}</pre>

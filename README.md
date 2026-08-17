@@ -61,6 +61,26 @@ LLM 및 에이전트에 공급되는 Prompt Preset 규약은 `.agent/` 디렉토
 - **`.agent/prompts/linter_audit_preset.json`**: 24/7 정적 린팅 프롬프트 프리셋
 - **`.agent/prompts/refactor_merge_preset.json`**: 그래프 중복 통합 프롬프트 프리셋
 
+### 4. 로그 확인 방법 (Log Inspection Guide)
+
+Knowledge Platform 및 Dashboard 구동 중 발생하는 로그는 다음과 같이 확인할 수 있습니다:
+
+- **백엔드 REST API 서버 로그 (Backend Server Logs)**:
+  - `python -m src.cli serve --port 8000` 실행 터미널에 모든 HTTP REST API 요청 URI, HTTP 상태 코드(`200`, `404`, `500`), 에러 Stack Trace가 실시간 출력됩니다.
+  - 파일 리다이렉트 및 실시간 추적:
+    ```bash
+    python -m src.cli serve --port 8000 > server.log 2>&1 &
+    tail -f server.log
+    ```
+- **웹 브라우저 개발자 도구 (Browser DevTools Logs)**:
+  - 브라우저에서 `F12` (또는 `Ctrl + Shift + I` / `Cmd + Option + I`) 입력
+  - **Console 탭**: Web UI 컴포넌트 렌더링, 프론트엔드 JS 에러 및 console 메시지 확인
+  - **Network 탭**: REST API 통신 요청/응답 Header, Payload JSON, HTTP 상태 코드 및 응답 시간(< 200ms) 확인
+- **CLI 작업 로그 (CLI Execution Logs)**:
+  - Linter 감사 정적 스캔 로그: `python -m src.cli audit`
+  - 인간 승인 대기 큐 목록 로그: `python -m src.cli pending`
+  - Q&A 지식 추출 로그: `python -m src.cli ingest --log "..."`
+
 ---
 
 ## 11 Core DSGN Modules Summary (제공하는 주요 기능)
@@ -71,7 +91,7 @@ LLM 및 에이전트에 공급되는 Prompt Preset 규약은 `.agent/` 디렉토
 4. **`DSGN-LINTER-ENGINE`** ([src/core/knowledge_linter_engine.py](file:///home/chaehwan/bifacewiki/bifacewiki/src/core/knowledge_linter_engine.py)): 24/7 static audit scanner detecting broken links, orphan nodes, YAML schema errors, 180d stale nodes, and contradictions.
 5. **`DSGN-APPROVAL-GATE`** ([src/core/human_approval_gate_manager.py](file:///home/chaehwan/bifacewiki/bifacewiki/src/core/human_approval_gate_manager.py)): Human Broker review queue, promotion to `knowledge/` and `main` branch, strict AI self-approval block (`NFR-SEC-01`).
 6. **`DSGN-REFACTOR-ENGINE`** ([src/core/graph_refactoring_engine.py](file:///home/chaehwan/bifacewiki/bifacewiki/src/core/graph_refactoring_engine.py)): Duplicate node consolidation ($\ge 0.90$ similarity), Wikilink auto-redirection, archiving deprecated nodes.
-7. **`DSGN-LLM-ADAPTER`** ([src/agent/universal_llm_vendor_adapter.py](file:///home/chaehwan/bifacewiki/bifacewiki/src/agent/universal_llm_vendor_adapter.py)): Universal connector for OpenAI, Gemini, Claude, and Localhost Proxy Sandbox for Ollama (`NFR-SEC-03`).
+7. **`DSGN-LLM-ADAPTER`** ([src/agent/universal_llm_vendor_adapter.py](file:///home/chaehwan/bifacewiki/bifacewiki/src/agent/universal_llm_vendor_adapter.py)): Universal connector for OpenAI, Gemini, Claude, Local Ollama (`NFR-SEC-03`), and Google Antigravity CLI.
 8. **`DSGN-AGENT-BINDER`** ([src/agent/skill_binding_middleware.py](file:///home/chaehwan/bifacewiki/bifacewiki/src/agent/skill_binding_middleware.py)): Dynamic skill loader binding system prompts and tool schemas to LLM sessions (`NFR-PERF-04` < 200ms).
 9. **`DSGN-AGENT-SKILL`** ([src/agent/knowledge_retrieval_skill.py](file:///home/chaehwan/bifacewiki/bifacewiki/src/agent/knowledge_retrieval_skill.py)): Tool handlers (`knowledge_search`, `knowledge_retrieve`, `knowledge_context_inject`) restricted to `status: production` nodes.
 10. **`DSGN-UI-DASHBOARD`** ([src/ui/git_management_dashboard.tsx](file:///home/chaehwan/bifacewiki/bifacewiki/src/ui/git_management_dashboard.tsx), [src/ui/index.html](file:///home/chaehwan/bifacewiki/bifacewiki/src/ui/index.html)): React & Standalone HTML/JS Web GUI rendering status widgets, commit timelines, visual diffs, and approval review cards.

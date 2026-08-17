@@ -17,7 +17,7 @@ from src.core.knowledge_ingestion_engine import KnowledgeIngestionEngine, Knowle
 from src.core.knowledge_linter_engine import KnowledgeLinterEngine
 from src.core.human_approval_gate_manager import HumanApprovalGateManager, ApprovalDecisionDTO
 from src.core.graph_refactoring_engine import GraphRefactoringEngine
-from src.agent.universal_llm_vendor_adapter import UniversalLLMVendorAdapter, VendorConfigDTO
+from src.agent.universal_llm_vendor_adapter import UniversalLLMVendorAdapter, VendorConfigDTO, LLMInvokeRequestDTO
 from src.agent.skill_binding_middleware import SkillBindingMiddleware
 from src.agent.knowledge_retrieval_skill import KnowledgeRetrievalSkill
 from src.ui.external_launcher_adapter import ExternalLauncherAdapter
@@ -216,10 +216,16 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
                     self.wfile.write(ev.encode('utf-8'))
 
             elif path == "/api/v1/knowledge/extract":
+                raw_log = body.get("raw_conversation_log", "")
+                # Invoke active LLM Vendor (Google Antigravity CLI by default)
+                llm_req = LLMInvokeRequestDTO(prompt=raw_log)
+                llm_res = self.llm_adapter.invoke(llm_req)
+
                 req = KnowledgeExtractRequestDTO(
                     conversation_session_id=body.get("conversation_session_id", "sess-000"),
-                    raw_conversation_log=body.get("raw_conversation_log", ""),
-                    classification_hints=body.get("classification_hints", [])
+                    raw_conversation_log=raw_log,
+                    classification_hints=body.get("classification_hints", []),
+                    llm_response=llm_res.content
                 )
                 res = self.ingestion.extract_from_conversation(req)
                 self._set_headers(200)
@@ -228,6 +234,8 @@ class KnowledgePlatformAPIHandler(BaseHTTPRequestHandler):
                     "file_path": res.file_path,
                     "status": res.frontmatter.status,
                     "extracted_markdown": res.extracted_markdown,
+                    "active_vendor": self.llm_adapter.active_vendor,
+                    "llm_response": llm_res.content,
                     "steps": res.steps if hasattr(res, "steps") else []
                 }, ensure_ascii=False).encode('utf-8'))
 

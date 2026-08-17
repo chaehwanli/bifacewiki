@@ -18,6 +18,7 @@ class KnowledgeExtractRequestDTO:
     conversation_session_id: str
     raw_conversation_log: str
     classification_hints: List[str] = field(default_factory=list)
+    llm_response: Optional[str] = None
 
 
 @dataclass
@@ -89,6 +90,8 @@ class KnowledgeIngestionEngine:
         title_line = request.raw_conversation_log.strip().splitlines()[0][:50] if request.raw_conversation_log else "Q&A Extraction"
         clean_title = re.sub(r'[^\w\s\-]', '', title_line).strip() or "QA Knowledge Node"
 
+        resolution_text = request.llm_response if request.llm_response else f"Extracted resolution from Q&A session {request.conversation_session_id}."
+
         markdown_body = f"""---
 id: {node_id}
 title: "{clean_title}"
@@ -103,7 +106,7 @@ author_type: ai_generated
 {request.raw_conversation_log}
 
 ## Resolution / Summary
-Extracted resolution from Q&A session {request.conversation_session_id}.
+{resolution_text}
 """
 
         # Enforce atomic constraint

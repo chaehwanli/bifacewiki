@@ -16,7 +16,7 @@ Instructions, component rules, and REST API contracts for building the **Present
    - **REST Endpoints**: `GET /api/v1/git/status`, `GET /api/v1/git/history`, `GET /api/v1/git/diff`, `POST /api/v1/git/sync`, `POST /api/v1/git/rollback`
 
 2. **LLM Vendor Switcher Widget (`DSGN-LLM-ADAPTER`, `UC-005`)**:
-   - Render active LLM vendor selector dropdown in header (`OpenAI GPT-4o`, `Google Gemini 1.5 Pro`, `Anthropic Claude 3.5`, `Local Ollama`).
+   - Render active LLM vendor selector dropdown in header (`OpenAI GPT-4o`, `Google Gemini 1.5 Pro`, `Anthropic Claude 3.5`, `Google Antigravity CLI`, `Local Ollama`).
    - Enforce localhost proxy sandbox badge for local Ollama mode (`NFR-SEC-03`).
    - **REST Endpoints**: `GET /api/v1/settings/llm-vendor`, `PUT /api/v1/settings/llm-vendor`
 

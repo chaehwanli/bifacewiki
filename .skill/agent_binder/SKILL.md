@@ -10,7 +10,7 @@ Instructions and domain rules for implementing the **Agent & Integration Layer**
 
 ## Core Responsibilities & Specifications
 1. **Universal LLM Vendor Adapter (`DSGN-LLM-ADAPTER`, `UC-005`)**:
-   - Abstract OpenAI GPT, Gemini, Claude, and Local Ollama behind a unified interface.
+   - Abstract OpenAI GPT, Gemini, Claude, Local Ollama, and Google Antigravity CLI behind a unified interface.
    - Localhost Proxy Sandbox (`NFR-SEC-03`): Route Ollama traffic exclusively via `http://127.0.0.1:11434` with zero external network access.
 2. **Skill Binding Middleware (`DSGN-AGENT-BINDER`, `UC-006`)**:
    - Read `.agent/skills/` Frontmatter and Tool Schemas.

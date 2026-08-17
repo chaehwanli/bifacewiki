@@ -44,11 +44,12 @@ class TestLLMVendorAdapterEnhancements(unittest.TestCase):
         self.adapter = UniversalLLMVendorAdapter(initial_vendor="openai")
 
     def test_switch_vendor_valid(self):
-        """Phase 2: Test switching active vendor to gemini, claude, ollama."""
-        cfg = VendorConfigDTO(vendor_code="gemini", model_name="gemini-1.5-pro")
-        success = self.adapter.switch_vendor("gemini", cfg)
-        self.assertTrue(success)
-        self.assertEqual(self.adapter.active_vendor, "gemini")
+        """Phase 2: Test switching active vendor to gemini, claude, ollama, antigravity."""
+        for vendor in ["gemini", "claude", "antigravity"]:
+            cfg = VendorConfigDTO(vendor_code=vendor, model_name=f"{vendor}-model")
+            success = self.adapter.switch_vendor(vendor, cfg)
+            self.assertTrue(success)
+            self.assertEqual(self.adapter.active_vendor, vendor)
 
     def test_ollama_sandbox_isolation_nfr_sec_03(self):
         """Phase 2: Test NFR-SEC-03 localhost proxy enforcement for Ollama."""
